@@ -1,12 +1,50 @@
 # API-router
 
-API-router 是运行在本机的模型路由服务，提供网页管理、云端 API 供应商配置、应用独立 Profile，以及可选的本地小模型判断、执行与实验性脱敏。项目基于固定版本的 Magpie 源码改造，产品入口为 `magpie/cmd/api-router`。
+[简体中文](README.md) | [English](README.en.md)
 
-当前为开发版本，优先适配 WorkBuddy 与 Loomy 的本机模式。仓库中的其他预置应用和协议适配器不表示全部宿主、版本、平台或模型已经通过兼容验收。当前提供 Windows x64 打包与本地安装流程；macOS、Linux 的源码构建和测试入口可用性应以各平台实际运行结果为准。
+API-router 是运行在本机的 AI 模型路由服务。在一个网页中管理云端 API、本地小模型和路由策略，再将 WorkBuddy、Loomy 接入同一服务。项目基于固定版本的 Magpie 源码改造，产品入口为 `magpie/cmd/api-router`。
+
+**[下载 Windows x64 预览版](https://github.com/xyzane54/magpie/releases/tag/api-router-v0.1.0-beta.1)** · [浏览 API-router 源码](https://github.com/xyzane54/magpie/tree/codex/api-router)
+
+当前版本为 **0.1.0-beta.1**，优先适配 WorkBuddy 与 Loomy 的本机模式。预编译包适用于 Windows x64；macOS、Linux 可从源码构建。仓库中的其他预置应用和协议适配器不表示全部宿主、版本、平台或模型已经通过兼容验收。
+
+## 下载与安装（Windows x64）
+
+使用安装包无需安装 Go、Node 或 Python。打开上面的发布页，将同一版本的以下四个文件下载到同一个本地文件夹：
+
+| 文件 | 用途 |
+| --- | --- |
+| `api-router-0.1.0-beta.1-windows-amd64.zip` | 程序、内嵌管理页面和安装/卸载说明 |
+| `api-router-0.1.0-beta.1-windows-amd64.manifest.json` | 安装器使用的文件大小与 SHA256 清单 |
+| `install-windows.ps1` | 独立安装脚本 |
+| `SHA256SUMS` | ZIP、manifest 和独立安装脚本的 SHA256 校验值 |
+
+在该文件夹中打开 PowerShell，执行：
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install-windows.ps1 -ManifestPath "$PWD\api-router-0.1.0-beta.1-windows-amd64.manifest.json" -PackagePath "$PWD\api-router-0.1.0-beta.1-windows-amd64.zip"
+
+$router = Join-Path $env:LOCALAPPDATA 'Programs\API-router\api-router.exe'
+& $router service start
+```
+
+安装器会检查包和每个文件的 SHA256，默认安装到 `%LOCALAPPDATA%\Programs\API-router`。打开启动输出中的 `managementURL` 即可使用；安装不会启用登录自启或下载模型。此预览包尚未进行发布者代码签名，也没有自动更新功能。
+
+已有安装的用户请先阅读[手动版本替换与备份说明](magpie/docs/windows-delivery.md#手动版本替换备份与恢复)，安装器不会直接覆盖其他版本。
+
+## 首次使用
+
+1. 打开管理页面，在供应商页添加 API Key、API 地址及模型，执行连接检查。
+2. 按需建立路由组，选择云端模型或本地模型及调度策略。
+3. 在应用页为 WorkBuddy 或 Loomy 选择模型/路由组并开启接入，重新打开宿主以加载配置。
+4. 如需本地推理，先在本地模型页完成设备检测、模型与运行时安装及能力检查，再显式启用。
+
+本地模型和云端供应商可分别使用；只有明确启用实验性脱敏时，才会进入相应的试用流程。
 
 ## 当前功能
 
 - 云端供应商：保存 API Key、地址、协议和模型；由用户主动获取模型或执行连接检查。应用通过独立 Profile 绑定供应商与模型。
+- 路由组：支持智能端云分流、顺序、权重和手动策略及失败回退；应用可以同时绑定多个模型和路由组。
 - 云端请求：支持 OpenAI Chat、OpenAI Responses、Anthropic Messages 的受限协议契约，提供有限重试、流式响应、请求观测和用量统计。工具调用及协议转换仍取决于客户端输入与上游能力。
 - 本地模型：提供设备检测、固定 Spark-X2.5-1.7B / 4B 模型与运行时下载、单推理进程管理、上下文和阶段预算设置。用户需明确启用、安装并完成能力检查，才可选择实验性判断与执行；样本检查通过不代表模型质量正式验收。
 - 脱敏：具备本地识别、严格结果校验、映射及响应还原流程。识别质量尚未正式验收；实验性试用需要显式启动参数，校验失败会阻断云端请求。
@@ -79,7 +117,7 @@ node magpie/scripts/product-regression.cjs
 
 入口包含产品构建、产品及共享包的 race / vet、Chromium 与 WebKit 页面测试；任一步失败返回非零。旧 `make test-ui` 覆盖上游 Magpie GUI，产品页面使用上述统一入口。自动化回归使用隔离目录与模拟上游，不能替代真实模型、真实宿主及各平台验收。
 
-Windows x64 固定版本包由 `magpie/scripts/package-windows.ps1` 生成，必须提供明确的语义版本；安装器只接收本地包。用法、校验和安装/卸载边界见 [Windows 交付文档](magpie/docs/windows-delivery.md)与[交付子系统](magpie/docs/subsystems/api-router-delivery.md)。正式公开下载地址、发布者签名与自动更新尚未接入。
+Windows x64 固定版本包由 `magpie/scripts/package-windows.ps1` 生成，必须提供明确的语义版本；安装器只接收本地包。预览包发布在[本仓库的 Releases](https://github.com/xyzane54/magpie/releases)，安装器不会自行查询或下载 latest。用法、校验和安装/卸载边界见 [Windows 交付文档](magpie/docs/windows-delivery.md)与[交付子系统](magpie/docs/subsystems/api-router-delivery.md)。
 
 ## 代码与文档
 

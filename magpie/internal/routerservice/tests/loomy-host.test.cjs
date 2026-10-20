@@ -99,16 +99,20 @@ for (const engine of (process.env.BROWSER ? [process.env.BROWSER] : ['chromium',
       const noHostWrites = async () => { assert.equal(await fs.readFile(hostFile, 'utf8'), before); assert.deepEqual(await jsonFiles(stateDir), beforeRecords); };
       const fit = async () => {
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${language}/${width} page overflow`);
-        const bounds = await page.locator('#loomyModal .dialog').boundingBox();
-        assert.ok(bounds && bounds.x >= -1 && bounds.x + bounds.width <= width + 1, `${language}/${width} dialog overflow`);
+        const bounds = await page.locator('#agents [data-app=loomy] .ag-exp').boundingBox();
+        assert.ok(bounds && bounds.x >= -1 && bounds.x + bounds.width <= width + 1, `${language}/${width} details overflow`);
       };
-      const action = async (id, name, expected = 200) => {
-        const arrived = page.waitForResponse(response => new URL(response.url()).pathname === '/api/hosts/loomy' && response.request().method() === 'POST' && response.request().postDataJSON().action === name);
-        await page.locator('#' + id).click(); const response = await arrived, result = await response.json();
-        await page.waitForFunction(() => !!document.querySelector('#loomyStatus').textContent && !document.querySelector('#loomyRoot').disabled);
-        assert.equal(response.status(), expected, `host ${name}`); safe(result);
-        safe(await page.locator('#loomyPlan').textContent()); safe(await page.locator('#loomyRecovery').textContent());
-        assert.equal(await page.locator('#loomyPlan *, #loomyRecovery *, #loomyStatus *').count(), 0, 'host output must be plain text');
+      let applyDigest, restoreDigest;
+      // Custom-directory preview/apply/recovery remains an HTTP/CLI contract;
+      // the current Agents page exposes the model picker and inline details.
+      const action = async (name, expected = 200) => {
+        const body = { action: name, configRoot: root, model };
+        if (name === 'apply') body.digest = applyDigest;
+        if (name === 'restore') body.digest = restoreDigest;
+        const { status, result } = await hostAPI(body);
+        assert.equal(status, expected, `host ${name}`);
+        if (status === 200 && name === 'preview') applyDigest = result.digest;
+        if (status === 200 && name === 'restore-preview') restoreDigest = result.digest;
         return result;
       };
       await skipTutorial(page); await page.goto(origin + `/?locale=${language}&view=agents`);
@@ -125,20 +129,15 @@ for (const engine of (process.env.BROWSER ? [process.env.BROWSER] : ['chromium',
         assert.equal(calls.length, beforeSaveCalls, 'Agent model selection must not probe upstream');
       }
       await noHostWrites(); assert.equal(hostRequests.length, 0);
-      await page.locator('#connectLoomy').click(); await page.waitForFunction(() => !document.querySelector('#loomyModal').hidden);
-      assert.equal(await page.locator('#loomyTitle').textContent(), await page.evaluate(() => t('Connect Loomy')));
-      if (language !== 'en') assert.notEqual(await page.locator('#loomyTitle').textContent(), 'Connect Loomy');
-      await page.locator('#loomyRoot').fill(root); assert.equal(await page.locator('#loomyModel').inputValue(), model);
-      assert.equal(await page.locator('#loomyApply').isDisabled(), true); assert.equal(await page.locator('#loomyRestore').isDisabled(), true);
+      const details = page.locator('#agents [data-app=loomy] .ag-link');
+      await details.click();
+      assert.equal((await details.textContent()).trim(), await page.evaluate(() => t('Collapse')));
+      assert.equal((await page.locator('#agents [data-app=loomy] .ag-exp .ag-k').first().textContent()).trim(), await page.evaluate(() => t('In {agent}').replace('{agent}', 'Loomy')));
+      assert.ok((await page.locator('#agents [data-app=loomy] .ag-pick').textContent()).includes(model));
       await noHostWrites(); await fit();
-      await action('loomyCheck', 'check'); await noHostWrites();
-      const beforePreviewCalls = calls.length; await action('loomyPreview', 'preview');
+      await action('check'); await noHostWrites();
+      const beforePreviewCalls = calls.length; const preview = await action('preview');
       assert.equal(calls.length, beforePreviewCalls, 'preview must not call a model'); await noHostWrites();
-      assert.equal(await page.locator('#loomyApply').isEnabled(), true);
-      await page.locator('#loomyModel').fill('changed-model'); assert.equal(await page.locator('#loomyApply').isDisabled(), true);
-      await page.locator('#loomyModel').fill(model); await action('loomyPreview', 'preview');
-      await page.locator('#loomyRoot').fill(root + '-different'); assert.equal(await page.locator('#loomyApply').isDisabled(), true);
-      await page.locator('#loomyRoot').fill(root); const preview = await action('loomyPreview', 'preview');
       assert.equal(preview.baseURL, origin + '/app/loomy/v1'); assert.equal(preview.requestURL, origin + '/app/loomy/v1/chat/completions');
       await noHostWrites(); await fit();
       if (language === 'zh' && width === 1600) {
@@ -146,8 +145,8 @@ for (const engine of (process.env.BROWSER ? [process.env.BROWSER] : ['chromium',
         await fs.writeFile(hostFile, JSON.stringify({ ...original, laterEdit: true }));
         const stale = await hostAPI({ action: 'apply', configRoot: root, model, digest: preview.digest });
         assert.equal(stale.status, 409, 'stale preview must not overwrite host edits'); assert.deepEqual(await jsonFiles(stateDir), beforeRecords);
-        await fs.writeFile(hostFile, before); await action('loomyPreview', 'preview');
-        const beforeApplyCalls = calls.length; const applied = await action('loomyApply', 'apply');
+        await fs.writeFile(hostFile, before); await action('preview');
+        const beforeApplyCalls = calls.length; const applied = await action('apply');
         assert.equal(calls.length, beforeApplyCalls + 1, 'apply must check the saved target with a real model probe');
         const configured = JSON.parse(await fs.readFile(hostFile, 'utf8'));
         assert.equal(configured.model, 'api_router/' + model); assert.equal(configured.small_model, 'api_router/' + model);
@@ -156,19 +155,19 @@ for (const engine of (process.env.BROWSER ? [process.env.BROWSER] : ['chromium',
         assert.deepEqual(configured.provider.original, original.provider.original);
         const records = await jsonFiles(applied.stateDir); assert.equal(records.length, beforeRecords.length + 1);
         const recordFile = path.join(applied.stateDir, records.find(name => !beforeRecords.includes(name))), firstBackup = await fs.readFile(recordFile);
-        const firstApplied = await fs.readFile(hostFile); await action('loomyPreview', 'preview'); await action('loomyApply', 'apply');
+        const firstApplied = await fs.readFile(hostFile); await action('preview'); await action('apply');
         assert.deepEqual(await fs.readFile(recordFile), firstBackup, 'repeat apply replaced the first backup'); assert.deepEqual(await fs.readFile(hostFile), firstApplied);
         configured.theme = 'later-user-theme'; configured.model = 'user/changed'; const conflict = JSON.stringify(configured);
-        await fs.writeFile(hostFile, conflict); await action('loomyRestorePreview', 'restore-preview', 409);
+        await fs.writeFile(hostFile, conflict); await action('restore-preview', 409);
         assert.equal(await fs.readFile(hostFile, 'utf8'), conflict); assert.deepEqual(await fs.readFile(recordFile), firstBackup);
         configured.model = 'api_router/' + model; await fs.writeFile(hostFile, JSON.stringify(configured));
-        await action('loomyRestorePreview', 'restore-preview'); assert.equal(await page.locator('#loomyRestore').isEnabled(), true);
-        await action('loomyRestore', 'restore'); const restored = JSON.parse(await fs.readFile(hostFile, 'utf8'));
+        await action('restore-preview');
+        await action('restore'); const restored = JSON.parse(await fs.readFile(hostFile, 'utf8'));
         assert.equal(restored.model, original.model); assert.equal(restored.small_model, original.small_model); assert.equal(restored.theme, 'later-user-theme');
         assert.deepEqual(restored.provider.original, original.provider.original); assert.equal(restored.provider.api_router, undefined);
       }
       assert.equal(await page.evaluate(() => window.fixtureExecuted), undefined); assert.deepEqual(errors, []);
-      await fit(); await page.locator('#loomyClose').click(); assert.equal(await page.locator('#loomyModal').isVisible(), false); await page.close();
+      await fit(); await details.click(); assert.equal(await page.locator('#agents [data-app=loomy] .ag-exp').count(), 0); await page.close();
     }
     const offlineRoot = path.join(home, 'offline-host'), offlineFile = path.join(offlineRoot, 'opencode.json');
     await fs.mkdir(offlineRoot); await fs.writeFile(offlineFile, JSON.stringify(original));

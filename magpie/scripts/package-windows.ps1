@@ -48,9 +48,9 @@ try {
     }
     $utf8 = New-Object Text.UTF8Encoding($false)
     [IO.File]::WriteAllText($manifestPath, ($manifest | ConvertTo-Json -Depth 8) + "`n", $utf8)
-    $checksums = foreach ($file in @($zipPath, $manifestPath)) { (Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant() + '  ' + [IO.Path]::GetFileName($file) }
-    [IO.File]::WriteAllText((Join-Path $OutputDir 'SHA256SUMS'), ($checksums -join "`n") + "`n", $utf8)
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'install-windows.ps1') -Destination (Join-Path $OutputDir 'install-windows.ps1')
+    $checksums = foreach ($file in @($zipPath, $manifestPath, (Join-Path $OutputDir 'install-windows.ps1'))) { (Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant() + '  ' + [IO.Path]::GetFileName($file) }
+    [IO.File]::WriteAllText((Join-Path $OutputDir 'SHA256SUMS'), ($checksums -join "`n") + "`n", $utf8)
     Write-Output "Package: $zipPath"
     Write-Output "Manifest: $manifestPath"
     Write-Output 'No upload or public release was performed.'

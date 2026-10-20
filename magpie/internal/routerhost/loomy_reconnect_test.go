@@ -163,4 +163,3 @@ func TestWorkBuddyRestoreAfterSwitchingCustomLocalModel(t *testing.T) {
 		t.Fatalf("unexpected restored WorkBuddy model: %v (err=%v)", doc["model"], err)
 	}
 }
-

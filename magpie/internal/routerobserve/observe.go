@@ -31,17 +31,17 @@ type progressSink interface {
 // Calls to Observe and Finish are safe concurrently. The first end wins; all
 // callers receive the same persistence result, including a failed write.
 type Request struct {
-	mu           sync.Mutex
-	sink         Sink
-	metadata     routerledger.Metadata
-	attempts     []routerledger.Attempt
-	committed    bool
-	retryWaiting bool
-	phase        string
-	progressErr  error
-	finishing    bool
-	done         chan struct{}
-	finishErr    error
+	mu              sync.Mutex
+	sink            Sink
+	metadata        routerledger.Metadata
+	attempts        []routerledger.Attempt
+	committed       bool
+	retryWaiting    bool
+	phase           string
+	progressErr     error
+	finishing       bool
+	done            chan struct{}
+	finishErr       error
 	localCallID     string
 	localModel      string
 	localUsage      *routerledger.Usage

@@ -1,10 +1,12 @@
 # API-router Windows x64 本地安装与管理
 
-本包包含已编译的产品 EXE 和内嵌网页。使用产品无需 Go、Node、Python 或源码，不需要管理员服务。当前仅验证 Windows x64。正式 Release 托管、公开下载 URL、发布者签名和公开分发信任链尚未接入；不要将本地产物宣称为公开发布。SHA256 校验用于检测与明确可信 manifest 不一致的文件，不能证明 manifest 的发布者身份。
+[English installation guide](https://github.com/xyzane54/magpie/blob/codex/api-router/README.en.md#download-and-install-on-windows-x64)
+
+本包包含已编译的产品 EXE 和内嵌网页。使用产品无需 Go、Node、Python 或源码，不需要管理员服务。预览包支持 Windows x64，由个人仓库 [xyzane54/magpie 的 Releases](https://github.com/xyzane54/magpie/releases) 发布，标签使用 `api-router-v` 前缀，与上游 Magpie 版本分别管理。当前未进行发布者代码签名，也没有自动更新功能。SHA256 校验用于核对文件完整性，不能证明 manifest 的发布者身份。
 
 ## 安装固定版本
 
-从可信来源取得同一固定版本的 `*.zip`、`*.manifest.json`、`SHA256SUMS` 和独立 `install-windows.ps1`。不要执行网络脚本文本，不查询或隐式使用 latest。安装器只接受明确给定的本地包；当前不实现自动升级、自动回滚或其他平台安装。
+从同一 [API-router 发布版本](https://github.com/xyzane54/magpie/releases/tag/api-router-v0.1.0-beta.1)取得 `*.zip`、`*.manifest.json`、`SHA256SUMS` 和独立 `install-windows.ps1`，保存在同一个本地文件夹。`SHA256SUMS` 列出 ZIP、manifest 和独立安装脚本的校验值，可用 `Get-FileHash -Algorithm SHA256` 核对。安装器只接受明确给定的本地包，不执行网络脚本文本，不查询或隐式使用 latest；当前不实现自动升级、自动回滚或其他平台安装。
 
 在 PowerShell 中指定绝对路径（支持空格和中文）：
 
@@ -78,3 +80,31 @@ $router = Join-Path $env:LOCALAPPDATA 'Programs\API-router\api-router.exe'
 4. 新程序无法工作时，先停止并关闭自启。保留失败现场，把新程序目录移走，再将旧程序目录放回原路径。安装 receipt 绑定原始绝对目录：重命名的旧备份 EXE 仍可作为离线 `host restore-preview` / `host restore` 工具使用，但重新安装、安装复核或卸载原 receipt 时须先把整个目录放回原路径。只有旧版本明确支持当前数据 schema 时才能使用现有数据；不兼容时必须恢复第 2 步的兼容私有备份并接受备份之后的数据不会保留。不要在两版本同时运行时复制或恢复数据库，不承诺直接替换 EXE 即可降级。
 
 所有替换与恢复由用户明确执行，没有后台自动更新或自动回滚引擎。数据 schema 不兼容会明确失败，不会自动降级或静默覆盖。
+
+## 来源与许可证
+
+本程序基于 [Magpie](https://github.com/yetone/magpie) 改造，源代码及本包对应版本可在 [API-router 仓库](https://github.com/xyzane54/magpie/tree/codex/api-router)取得。模型权重和推理运行时另行下载，遵循各自的许可证。原始 MIT 许可证与版权声明如下：
+
+```text
+MIT License
+
+Copyright (c) 2026 yetone
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```

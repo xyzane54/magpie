@@ -178,13 +178,14 @@ for (const engine of (process.env.BROWSER ? [process.env.BROWSER] : ['chromium',
           assert.equal(ordinaryConfig.includes('ui-private-tenant'), false);
           await page.locator('#nav [data-view=agents]').click();
           const beforeGuide = await fs.readFile(configFile, 'utf8');
-          await page.locator('[data-host-setup=workbuddy]').click();
-          assert.equal(await page.locator('#workBuddySetup').isVisible(), true);
-          assert.match(await page.locator('#workBuddySetup pre').textContent(), /api-router host restore-preview.*--host workbuddy/);
-          assert.equal((await page.locator('#workBuddySetup').textContent()).includes(token), false);
+          const workBuddyRow = page.locator('#agents [data-app=workbuddy]');
+          await workBuddyRow.locator('.ag-link').click();
+          assert.equal(await workBuddyRow.locator('.ag-exp').isVisible(), true);
+          assert.equal(await workBuddyRow.locator('.ag-pick').isVisible(), true);
+          assert.equal((await workBuddyRow.locator('.ag-exp').textContent()).includes(token), false);
           assert.equal(await fs.readFile(configFile, 'utf8'), beforeGuide);
-          await page.locator('#workBuddySetup button').click();
-          assert.equal(await page.locator('#workBuddySetup').count(), 0);
+          await workBuddyRow.locator('.ag-link').click();
+          assert.equal(await workBuddyRow.locator('.ag-exp').count(), 0);
           // Connect WorkBuddy via inline multi-select picker and one-click switch without upstream generation probe
           await page.locator('#agents [data-app=workbuddy] .field.ag-menu').click();
           await page.locator('.pop.am-pop .am-mr[data-model$="/cloud-model-b"]').click();

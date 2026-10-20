@@ -46,8 +46,10 @@ for (const engine of process.env.BROWSER ? [process.env.BROWSER] : ['chromium', 
           assert.equal(req.headers['sec-fetch-site'], 'same-origin');
           return json({ schemaVersion: 1, token: currentToken });
         }
-        // Automatic management connection may read the passive application list.
+        // Reconnection may refresh passive application and model catalogues.
         if (pathname === '/api/apps' && req.method === 'GET' && req.headers.authorization === 'Bearer ' + currentToken) return json({ apps: [] });
+        if (pathname === '/api/routing-groups' && req.method === 'GET' && req.headers.authorization === 'Bearer ' + currentToken) return json({ groups: [] });
+        if (pathname === '/api/cloud-providers' && req.method === 'GET' && req.headers.authorization === 'Bearer ' + currentToken) return json({ providers: [], localModels: [] });
         if (pathname.startsWith('/api/service')) {
           if (req.headers.authorization !== 'Bearer ' + currentToken) {
             res.setHeader('WWW-Authenticate', 'Bearer');

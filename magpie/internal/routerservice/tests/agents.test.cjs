@@ -111,8 +111,14 @@ for (const engine of (process.env.BROWSER ? [process.env.BROWSER] : ['chromium',
     assert.equal(await page.locator('#agents .row.agent.conn').count(), 2);
     assert.deepEqual(await page.locator('#agents .row.agent.conn').evaluateAll(nodes => nodes.map(n => n.dataset.app)), ['loomy', 'workbuddy']);
     assert.equal(await page.locator('#agents [data-app="codex"], #agents [data-app="claude-code"], #agents [data-app="astudio"], #agents [data-app="dsh"], #addApp, #profileModal').count(), 0);
-    assert.equal(await page.locator('#connectLoomy').isVisible(), true);
-    assert.equal(await page.locator('#agents [data-app="workbuddy"] [data-host-setup="workbuddy"]').isVisible(), true);
+    for (const id of ['loomy', 'workbuddy']) {
+      const row = page.locator(`#agents [data-app="${id}"]`);
+      await row.locator('.ag-link').click();
+      assert.equal(await row.locator('.ag-exp').isVisible(), true);
+      assert.equal(await row.locator('.ag-pick').isVisible(), true);
+      await row.locator('.ag-link').click();
+      assert.equal(await row.locator('.ag-exp').count(), 0);
+    }
 
     // 2. Multi-select popover & Routing Groups top section assertions on Loomy
     const loomyMenuBtn = page.locator('#agents [data-app="loomy"] .field.ag-menu');

@@ -77,17 +77,17 @@ type Attempt struct {
 }
 
 type Outcome struct {
-	ExecutionKnown  bool      `json:"executionKnown"`
-	Status          string    `json:"status"`
-	Destination     string    `json:"destination"`
-	LocalModel      string    `json:"localModel"`
-	LocalCallID     string    `json:"localCallId"`
-	Attempts        int       `json:"attempts"`
-	OutputCommitted bool      `json:"outputCommitted"`
-	SafeErrorCode   string    `json:"safeErrorCode"`
-	FailureStage    string    `json:"failureStage"`
-	Usage           *Usage    `json:"usage"`
-	AttemptDetails  []Attempt `json:"attemptDetails"`
+	ExecutionKnown         bool            `json:"executionKnown"`
+	Status                 string          `json:"status"`
+	Destination            string          `json:"destination"`
+	LocalModel             string          `json:"localModel"`
+	LocalCallID            string          `json:"localCallId"`
+	Attempts               int             `json:"attempts"`
+	OutputCommitted        bool            `json:"outputCommitted"`
+	SafeErrorCode          string          `json:"safeErrorCode"`
+	FailureStage           string          `json:"failureStage"`
+	Usage                  *Usage          `json:"usage"`
+	AttemptDetails         []Attempt       `json:"attemptDetails"`
 	Decision               string          `json:"decision,omitempty"`
 	JudgmentMS             int64           `json:"judgmentMs,omitempty"`
 	CapabilityState        string          `json:"capabilityState,omitempty"`

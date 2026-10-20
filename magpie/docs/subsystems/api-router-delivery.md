@@ -12,7 +12,8 @@ with the [service owner](api-router-service.md); application data follows the
 version/build ID. The ZIP has a fixed order/date and exactly four flat files:
 the EXE, user guide and install/uninstall scripts. The external schema-1
 manifest pins product/version/windows/amd64, the ZIP's size/SHA256 and every
-member's name/size/SHA256; `SHA256SUMS` covers the ZIP and manifest. Building the
+member's name/size/SHA256; `SHA256SUMS` covers the ZIP, manifest, and standalone
+installer. The bundled user guide includes the original MIT license. Building the
 same source tree/version/toolchain yields the same bytes. Dependencies must
 already exist in the development Go cache for an offline build.
 
@@ -38,7 +39,10 @@ excess expansion, missing members, wrong sizes, corrupt hashes and non-amd64 PE
 payloads fail before installation publication. These checks defend trusted
 local inputs from damage and unsafe layouts; they are not an OS access-control
 boundary against another process running as the same user and racing filesystem
-changes. No publisher signature or public release source is currently wired.
+changes. Packages are published in the personal fork's
+[GitHub Releases](https://github.com/xyzane54/magpie/releases) with an
+`api-router-v` tag prefix; no publisher code signature is included. The installer
+does not contact GitHub or trust a moving latest-release URL.
 
 [`PreviewUninstall` / `Uninstall`](../../internal/routerdelivery/uninstall.go)
 require a receipt bound to the exact install root. Preview is read-only. Only
@@ -54,8 +58,11 @@ read-only default and explicit `-Execute` switch.
 The [user guide](../windows-delivery.md) describes manual version replacement,
 private consistent backups and compatible-data restoration. No updater,
 automatic rollback, data purge or non-Windows installer is implemented. Local
-fixed artifacts are usable now; public release hosting/URL, publisher
-verification and distribution remain separate integration work.
+fixed artifacts are distributed as Windows x64 previews. Each release has an
+explicit source tag and the ZIP, manifest, standalone installer and SHA256SUMS
+assets. Publication is a separate manual operation after package verification;
+the package script itself never uploads files. Publisher verification and an
+automatic updater are not implemented.
 
 Verification from `magpie/`: `go test ./internal/routerdelivery`, then the
 complete product gate. Native acceptance includes the actual PowerShell
