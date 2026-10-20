@@ -1,0 +1,386 @@
+# 中文优先的声明式检测规则。修改后重启网关生效。
+rules:
+  - name: contract_party
+    label: contract_party
+    pattern: '(?:甲方|乙方|丙方|丁方|委托方|受托方|采购方|供应方|出租方|承租方|出借方|借款方|保证人)\s*[:：]\s*(?P<value>[^\n\r，,；;。]{2,80}?)(?=\s*(?:[,，;；。]|\r?\n|$))'
+    redact_group: value
+    score: 0.999
+
+  - name: contextual_person_name
+    label: private_person
+    pattern: '(?:测试用户|示例用户|用户|联系人|负责人|申请人|经办人|收款户名|户名|客户姓名|员工姓名|患者姓名)\s*(?:为|是|叫|[:：])?\s*(?P<value>[赵钱孙李周吴郑王冯陈褚卫蒋沈韩杨朱秦尤许何吕施张孔曹严华金魏陶姜戚谢邹喻柏水窦章云苏潘葛奚范彭郎鲁韦昌马苗凤花方俞任袁柳鲍史唐费廉岑薛雷贺倪汤滕殷罗毕郝邬安常乐于时傅皮卞齐康伍余元顾孟平黄穆萧尹姚邵汪祁毛禹狄米贝明臧计伏成戴谈宋茅庞熊纪舒屈项祝董梁杜阮蓝闵席季麻强贾路娄危江童颜郭梅盛林刁钟徐邱骆高夏蔡田樊胡凌霍虞万支柯管卢莫房裘缪干解应宗丁宣邓郁单杭洪包诸左石崔吉龚程邢裴陆荣翁荀羊甄曲封芮储靳汲邴糜松井段富巫乌焦巴弓牧隗山谷车侯宓蓬全班仰秋仲伊宫宁仇栾甘厉祖武符刘景詹束龙叶幸司韶黎乔苍双闻莘党翟谭贡劳逄姬申扶堵冉宰郦雍却璩桑桂濮牛寿通边扈燕冀浦尚农温别庄晏柴瞿阎慕连茹习艾鱼容向古易慎戈廖庾终暨居衡步都耿满弘匡国文寇广禄阙东欧][\u4e00-\u9fff·]{1,3}?)(?=的(?:邮箱|电话|手机|地址|身份证|账号)|[（(）)，,。；;\s]|提交|确认|办理|申请|签署|联系|表示|称|说|于|在|向|与|$)'
+    redact_group: value
+    score: 0.93
+
+  - name: titled_person_name
+    label: private_person
+    pattern: '(?:(?:请联系|联系|咨询|对接)\s*)?(?:财务专员|法务专员|客户经理|项目经理|销售经理|产品经理|经办人|承办人|审核人|审批人|联系人|负责人)\s*[:：]?\s*(?P<value>[\u4e00-\u9fff·]{2,4})(?=[，,。；;\s]|$)'
+    redact_group: value
+    score: 0.95
+
+  - name: chinese_honorific_person
+    label: private_person
+    pattern: '(?:联系称谓|称谓|尊称)\s*[:：]?\s*(?P<value>[赵钱孙李周吴郑王冯陈褚卫蒋沈韩杨朱秦尤许何吕施张孔曹严华金魏陶姜戚谢邹喻柏水窦章云苏潘葛奚范彭郎鲁韦昌马苗凤花方俞任袁柳鲍史唐费廉岑薛雷贺倪汤滕殷罗毕郝邬安常乐于时傅皮卞齐康伍余元顾孟平黄穆萧尹姚邵汪祁毛禹狄米贝明臧计伏成戴谈宋茅庞熊纪舒屈项祝董梁杜阮蓝闵席季麻强贾路娄危江童颜郭梅盛林刁钟徐邱骆高夏蔡田樊胡凌霍虞万支柯管卢莫房裘缪干解应宗丁宣邓郁单杭洪包诸左石崔吉龚程邢裴陆荣翁荀羊甄曲封芮储靳汲邴糜松井段富巫乌焦巴弓牧隗山谷车侯宓蓬全班仰秋仲伊宫宁仇栾甘厉祖武符刘景詹束龙叶幸司韶黎乔苍双闻莘党翟谭贡劳逄姬申扶堵冉宰郦雍却璩桑桂濮牛寿通边扈燕冀浦尚农温别庄晏柴瞿阎慕连茹习艾鱼容向古易慎戈廖庾终暨居衡步都耿满弘匡国文寇广禄阙东欧][\u4e00-\u9fff·]{0,3}(?:女士|先生))(?=[）)，,。；;\s]|$)'
+    redact_group: value
+    score: 0.97
+
+  - name: english_titled_person
+    label: private_person
+    pattern: '(?P<value>(?:Mr|Mrs|Ms|Miss|Dr|Sir|Lord)\.?\s+(?:(?:[A-Z]\.)\s+)?[A-ZÀ-ÖØ-Þ][A-Za-zÀ-ÖØ-öø-ÿ''’.-]+(?:\s+[A-ZÀ-ÖØ-Þ][A-Za-zÀ-ÖØ-öø-ÿ''’.-]+){0,3})(?=[,;:()\[\]\s]|$)'
+    redact_group: value
+    score: 0.94
+
+  - name: contextual_identity_number
+    label: government_id
+    pattern: '(?:身份证号?|公民身份号码|证件号(?:码)?)\s*[:：]?\s*(?P<value>\d{17}[0-9Xx]|\d{15})'
+    redact_group: value
+    score: 0.997
+
+  - name: organization_name_with_suffix
+    label: organization_name
+    pattern: '(?P<value>[^\s，,。；;：:与]{2,60}?(?:有限责任公司|股份有限公司|有限公司|集团公司|集团|银行|保险公司|证券公司|基金管理公司|合作联社|人民法院|检察院|公安局|派出所|医院|学校|大学|研究院|设计院|委员会|管理局|管理处|经营部|服务所|事务所))(?=[，,。；;：:\s]|$|为|向|由|在|的)'
+    redact_group: value
+    score: 0.99
+
+  - name: organization_alias
+    label: organization_name
+    pattern: '(?:下称|简称|又称)\s*[“”"''《》]?\s*(?P<value>[\u4e00-\u9fffA-Za-z0-9·_-]{2,40})\s*[“”"''《》]?(?=[，,。；;）)\s]|$)'
+    redact_group: value
+    score: 0.96
+
+  - name: organization_alias_before_full_name
+    label: organization_name
+    pattern: '(?P<value>[\u4e00-\u9fffA-Za-z0-9·_-]{2,30})(?=与[\u4e00-\u9fffA-Za-z0-9·（）()_-]{2,60}(?:有限责任公司|股份有限公司|有限公司|集团|银行|医院|事务所))'
+    redact_group: value
+    score: 0.94
+
+  - name: customer_supplier_name_field
+    label: customer_supplier
+    pattern: '(?<![\u4e00-\u9fffA-Za-z0-9])(?:(?:已有|现有|目标|意向)客户参考|(?:客户|供应商|供货商)(?:名称|全称|简称|参考)?)\s*[:：]\s*[“"「]?(?P<value>(?!请(?:确认|填写|提供|补充))(?!(?:待确认|待填写|待定|未知|暂无|不适用|无|客户名称|供应商名称|项目名称|详见附件)(?=[”"」\s，,。；;]|$))[\u4e00-\u9fffA-Za-z0-9][\u4e00-\u9fffA-Za-z0-9·&（）() _.-]{1,79}?)[”"」]?(?=\s*(?:[，,。；;\r\n]|$))'
+    redact_group: value
+    score: 0.995
+
+  - name: customer_supplier_named_statement
+    label: customer_supplier
+    pattern: '(?:客户|供应商|供货商)(?:名称为|全称为|简称为|名为)\s*[“"「]?(?P<value>(?!(?:待确认|待定|未知|暂无|不适用)(?=[”"」\s，,。；;]|$))[\u4e00-\u9fffA-Za-z0-9][\u4e00-\u9fffA-Za-z0-9·&（）() _.-]{1,79}?)[”"」]?(?=\s*(?:[，,。；;\r\n]|$))'
+    redact_group: value
+    score: 0.98
+
+  - name: business_counterparty_in_context
+    label: customer_supplier
+    pattern: '(?:争议事项|交易背景|合同背景|合作背景)\s*[:：]\s*(?P<value>(?:[\u4e00-\u9fffA-Za-z0-9][\u4e00-\u9fffA-Za-z0-9·&（）()._-]{0,48}(?:客户[A-Za-z0-9][A-Za-z0-9_-]*|公司|集团|银行|科技|商贸|贸易|咨询|实业|工作室|研究院|学院|事务所)[A-Za-z0-9_-]*|[A-Za-z][A-Za-z0-9_.-]{1,59}))\s+(?=(?:要求|提出|主张|申请|委托|采购|订购|与我方|向我方))'
+    redact_group: value
+    score: 0.97
+
+  - name: project_name_field
+    label: project_code
+    pattern: '(?<![\u4e00-\u9fffA-Za-z0-9])(?:项目名称|项目简称|项目全称|工程名称|计划名称|项目)\s*[:：]\s*[“"「《]?(?P<value>(?!请(?:确认|填写|提供|补充))(?!(?:待确认|待填写|待定|未知|暂无|不适用|无|客户名称|供应商名称|项目名称|详见附件)(?=[”"」》\s，,。；;]|$))[\u4e00-\u9fffA-Za-z0-9][\u4e00-\u9fffA-Za-z0-9·&（）() _.-]{1,79}?)[”"」》]?(?=\s*(?:[，,。；;\r\n]|$))'
+    redact_group: value
+    score: 0.995
+
+  - name: project_name_after_document_title
+    label: project_code
+    pattern: '(?:^|\n)\s*(?:#{1,6}\s*)?(?:技术规格书|(?:项目|工程)(?:技术方案|规格书|可研报告|立项报告|验收报告|实施方案|设计方案|报告)|规格书|可研报告|立项报告|验收报告)(?:对比|差异分析|分析|说明|评审|汇总)?(?:材料|文档|报告|记录)?\s*[-—–:：]\s*[“"「《]?(?P<value>(?!版本|通用|部署|安装|使用|更新|操作|功能|对比|差异|说明|指导|附录|附件)[\u4e00-\u9fffA-Za-z0-9][\u4e00-\u9fffA-Za-z0-9·&（）() _.-]{1,59}?)[”"」》]?(?=\s*(?:\r?\n|$))'
+    redact_group: value
+    score: 0.98
+
+  - name: project_name_before_document_title
+    label: project_code
+    pattern: '(?:^|\n)\s*#{1,6}\s+(?P<value>[\u4e00-\u9fffA-Za-z0-9][\u4e00-\u9fffA-Za-z0-9·&（）()._-]{1,59})\s+(?:项目|工程)(?:周报|月报|报告|会议纪要|实施方案|验收材料)(?:材料|原始记录)?(?=\s*(?:\r?\n|$))'
+    redact_group: value
+    score: 0.97
+
+  - name: confidential_project_name
+    label: project_code
+    pattern: '(?:保密交易|项目名称|项目)\s*[:：]?\s*(?P<value>未公开[\u4e00-\u9fffA-Za-z0-9._-]{2,40})(?=[，,。；;\s]|$)'
+    redact_group: value
+    score: 0.99
+
+  - name: english_legal_date
+    label: private_date
+    pattern: '(?<![A-Za-z0-9])(?P<value>(?:[0-3]?\d\s+)?(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4})(?![A-Za-z0-9])'
+    redact_group: value
+    flags: [ignorecase]
+    score: 0.97
+
+  - name: english_numeric_date
+    label: private_date
+    pattern: '(?<![：\d])(?P<value>\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4})(?!\d)'
+    redact_group: value
+    score: 0.93
+
+  - name: english_legal_code
+    label: case_identifier
+    pattern: '(?<![A-Za-z0-9])(?P<value>\d{1,8}/\d{2,4})(?![A-Za-z0-9])'
+    redact_group: value
+    score: 0.95
+
+  - name: china_landline
+    label: private_phone
+    pattern: '(?<!\d)0\d{2,3}[- ]?\d{7,8}(?!\d)'
+    score: 0.96
+
+  - name: contract_number
+    label: contract_number
+    pattern: '(?:合同|协议)(?:编号|号)\s*[:：]?\s*(?P<value>[A-Za-z0-9][A-Za-z0-9_./-]{3,30})'
+    redact_group: value
+    flags: [ignorecase]
+    score: 0.96
+
+  - name: project_code
+    label: project_code
+    pattern: '(?:项目|工程)(?:编号|代号|代码)\s*[:：]?\s*(?P<value>[A-Za-z0-9][A-Za-z0-9_./-]{2,30})'
+    redact_group: value
+    flags: [ignorecase]
+    score: 0.95
+
+  - name: transaction_id
+    label: unique_transaction_id
+    pattern: '(?:交易|订单|流水)(?:编号|号)\s*[:：]?\s*(?P<value>[A-Za-z0-9][A-Za-z0-9_./-]{5,40})'
+    redact_group: value
+    flags: [ignorecase]
+    score: 0.94
+
+  - name: windows_or_unc_path
+    label: file_path
+    pattern: '(?i)(?:[A-Z]:\\|\\\\)[^\s<>:"|?*]+(?:\\[^\s<>:"|?*]+)+'
+    score: 0.96
+
+  - name: restricted_header
+    label: restricted_material
+    pattern: '(?:【(?:机密|绝密|禁止外发|内部受限)】|(?:密级|保密级别)\s*[:：]\s*(?:秘密|机密|绝密)|禁止外发)'
+    score: 0.99
+
+  - name: salary_amount
+    label: salary
+    pattern: '(?:薪资|工资|薪酬|月薪|年薪)[^\d\n，。；;]{0,12}(?P<value>\d+(?:\.\d+)?\s*(?:亿元|万元|千元|元|亿|万|千|k|K)?)'
+    redact_group: value
+    score: 0.93
+
+  - name: unpublished_revenue
+    label: unpublished_revenue
+    pattern: '(?:未公开|内部|本期|本季度|本年度)[^\n，。；;]{0,10}(?:收入|营收|利润)[^\d\n，。；;]{0,8}(?P<value>\d+(?:\.\d+)?\s*(?:亿元|万元|千元|元|亿|万|千)?)'
+    redact_group: value
+    score: 0.94
+
+  - name: contract_amount
+    label: contract_amount
+    pattern: '(?:合同金额|成交金额|交易金额)[^\d\n，。；;]{0,6}(?P<value>\d+(?:\.\d+)?\s*(?:亿元|万元|千元|元|亿|万|千)?)'
+    redact_group: value
+    score: 0.96
+
+  - name: internal_price
+    label: price
+    pattern: '(?:内部价|底价|成本价|未公开报价)[^\d\n，。；;]{0,6}(?P<value>\d+(?:\.\d+)?\s*(?:亿元|万元|千元|元|亿|万|千)?)'
+    redact_group: value
+    score: 0.95
+
+  - name: contextual_price_range
+    label: price
+    pattern: '(?:报价|价格|内部价|底价|成本价|成本)(?:区间|范围)?[ \t]*(?:为|是|在|介于|[:：])?[ \t]*[“"「]?[ \t]*(?:人民币|RMB|CNY|[¥￥])?[ \t]*(?P<value>[+-]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?[ \t]*(?:亿元|万元|千元|元|亿|万|千)?[ \t]*[-~～至—–][ \t]*[+-]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?[ \t]*(?:亿元|万元|千元|元|亿|万|千))(?=[ \t]*(?:之间|左右|[”"」，,。；;：:！？!?、）)\]】\r\n]|$))'
+    redact_group: value
+    flags: [ignorecase]
+    score: 0.995
+
+  - name: sensitive_ratio
+    label: sensitive_business_metric
+    pattern: '(?:毛利率|净利率|折扣率|增长率)[^\d\n，。；;]{0,6}(?P<value>\d+(?:\.\d+)?%)'
+    redact_group: value
+    score: 0.91
+
+  - name: payment_percentage
+    label: payment_percentage
+    pattern: '(?:支付|付款|预付|结算|尾款|进度款|首付款|款项|付款比例|支付比例)[^%\n，。；;]{0,16}?(?P<value>(?:100|[1-9]?\d)(?:\.\d+)?%)'
+    redact_group: value
+    score: 0.97
+
+  - name: payment_percentage_before_term
+    label: payment_percentage
+    pattern: '(?P<value>(?:100|[1-9]?\d)(?:\.\d+)?%)(?=\s*(?:的)?(?:合同款|款项|货款|尾款|预付款|进度款))'
+    redact_group: value
+    score: 0.96
+
+  - name: liability_percentage
+    label: liability_percentage
+    pattern: '(?:违约责任|赔偿责任|违约金|赔偿金)[^\n。；;]{0,60}?(?:上限为|最高为|不超过|合同总额的)?[^%\n。；;]{0,12}?(?P<value>(?:100|[1-9]?\d)(?:\.\d+)?%)'
+    redact_group: value
+    score: 0.97
+
+  - name: unpublished_financial_statement
+    label: financial_statement
+    pattern: '(?:未公开|内部|机密)[^\n，。；;]{0,8}(?:财务报表|资产负债表|利润表|现金流量表)'
+    score: 0.98
+
+  - name: passport_number
+    label: government_id
+    pattern: '(?:护照号|护照号码)\s*[:：]?\s*(?P<value>[A-Z][A-Z0-9]{7,11})'
+    redact_group: value
+    flags: [ignorecase]
+    score: 0.96
+
+  - name: birth_date
+    label: private_date
+    pattern: '(?:出生日期|出生年月|生日)\s*[:：]?\s*(?P<value>\d{4}(?:[-/.年])\d{1,2}(?:[-/.月])\d{1,2}日?)'
+    redact_group: value
+    score: 0.97
+
+  - name: unified_social_credit_code
+    label: organization_identifier
+    pattern: '(?:统一社会信用代码|社会信用代码)\s*[:：]?\s*(?P<value>[0-9A-HJ-NPQRTUWXY]{18})'
+    redact_group: value
+    validator: uscc_checksum
+    flags: [ignorecase]
+    score: 0.99
+
+  - name: organization_identifier
+    label: organization_identifier
+    pattern: '(?:纳税人识别号|纳税识别号|税号|组织机构代码|工商注册号|注册号)\s*[:：]?\s*(?P<value>[A-Z0-9-]{8,24})'
+    redact_group: value
+    flags: [ignorecase]
+    score: 0.96
+
+  - name: financial_account
+    label: financial_account
+    pattern: '(?:证券账户|证券账号|基金账号|支付平台账号|支付账号)\s*[:=：]?\s*(?P<value>[A-Za-z0-9@._-]{5,40})'
+    redact_group: value
+    flags: [ignorecase]
+    score: 0.96
+
+  - name: financial_amount
+    label: financial_amount
+    pattern: '(?:账户余额|交易金额|涉案金额|发票金额|贷款余额|授信额度)[^\d\n，。；;]{0,8}(?P<value>\d+(?:,\d{3})*(?:\.\d+)?\s*(?:亿元|万元|千元|元|亿|万|千)?)'
+    redact_group: value
+    score: 0.97
+
+  - name: interest_rate
+    label: contract_term
+    pattern: '(?:年利率|月利率|贷款利率|合同利率|利率)[^\d\n，。；;]{0,8}(?P<value>\d+(?:\.\d+)?\s*(?:%|％|BP|bp))'
+    redact_group: value
+    score: 0.97
+
+  - name: invoice_number
+    label: invoice_number
+    pattern: '(?:发票号码|发票号|票据号码)\s*[:：]?\s*(?P<value>[A-Za-z0-9-]{6,32})'
+    redact_group: value
+    flags: [ignorecase]
+    score: 0.97
+
+  - name: court_case_number
+    label: case_identifier
+    pattern: '(?P<value>[（(]\d{4}[）)][\u4e00-\u9fffA-Za-z0-9]{1,16}\d{1,10}号)'
+    redact_group: value
+    score: 0.98
+
+  - name: legal_document_number
+    label: case_identifier
+    pattern: '(?:案号|案件编号|文书编号|卷宗编号|内部案号)\s*[:：]?\s*(?P<value>[\u4e00-\u9fffA-Za-z0-9()（）._-]{4,40})'
+    redact_group: value
+    score: 0.97
+
+  - name: legal_participant_name
+    label: legal_participant
+    pattern: '(?:原告|被告|上诉人|被上诉人|申请人|被申请人|证人|鉴定人|被害人|受害人|法定代理人|法定代表人|审判员|当事人|被审判人)\s*[:：]?\s*(?P<value>[\u4e00-\u9fff·]{2,4})(?=[，,。；;\s诉与]|$)'
+    redact_group: value
+    score: 0.95
+
+  - name: vehicle_plate
+    label: vehicle_plate
+    pattern: '(?:车牌号|车牌)\s*[:：]?\s*(?P<value>[\u4e00-\u9fff][A-Z][A-Z0-9]{5,6})'
+    redact_group: value
+    flags: [ignorecase]
+    score: 0.97
+
+  - name: property_identifier
+    label: property_identifier
+    pattern: '(?:不动产权证书编号|不动产权证号|房产证号)\s*[:：]?\s*(?P<value>[\u4e00-\u9fffA-Za-z0-9()（）-]{6,48})'
+    redact_group: value
+    score: 0.97
+
+  # Dates are private here only when connected to an individual case/event.
+  # Keep time suffixes in the same span so a shorter date cannot expose them.
+  - name: legal_event_datetime
+    label: private_date
+    pattern: >-
+      (?x)(?<![\d年])
+      (?P<value>(?:19|20)\d{2}年(?:1[0-2]|0?[1-9])月
+      (?:(?:3[01]|[12]\d|0?[1-9])日)?
+      (?:[ \t]*(?:凌晨|清晨|早晨|早上|上午|中午|下午|傍晚|晚上|晚间)?
+      (?:2[0-3]|1\d|0?\d)(?:时|点)(?:(?:[0-5]?\d)分|半)?(?:许|左右|前后)?)?)
+      (?=[^。；;\r\n]{0,100}(?:被告人|嫌疑人|被害人|受害人|公诉机关|侦查人员|民警|窜至|盗窃|盗取|盗得|偷走|抓获|查获|抢劫|报警|报案|投案|拘留|起诉|审判|犯罪))
+    redact_group: value
+    score: 0.98
+
+  - name: legal_context_datetime
+    label: private_date
+    pattern: >-
+      (?x)(?:案发时间|作案时间|犯罪时间|报案时间|报警时间|抓获时间|拘留时间|投案时间|被告人|嫌疑人|被害人|侦查人员|公安机关|民警)
+      [^。；;，,\r\n\d]{0,24}
+      (?P<value>(?:19|20)\d{2}年(?:1[0-2]|0?[1-9])月
+      (?:(?:3[01]|[12]\d|0?[1-9])日)?
+      (?:[ \t]*(?:凌晨|清晨|早晨|早上|上午|中午|下午|傍晚|晚上|晚间)?
+      (?:2[0-3]|1\d|0?\d)(?:时|点)(?:(?:[0-5]?\d)分|半)?(?:许|左右|前后)?)?)
+    redact_group: value
+    score: 0.98
+
+  - name: legal_event_time
+    label: private_date
+    pattern: >-
+      (?x)(?<![\d年月])
+      (?P<value>(?:当日|次日|当天)?(?:凌晨|清晨|早晨|早上|上午|中午|下午|傍晚|晚上|晚间)
+      (?:2[0-3]|1\d|0?\d)(?:时|点)(?:(?:[0-5]?\d)分|半)?(?:许|左右|前后)?)
+      (?=[^。；;\r\n]{0,70}(?:被告人|嫌疑人|被害人|受害人|侦查人员|民警|窜至|盗窃|盗取|盗得|偷走|抓获|查获|抢劫|报警|报案|投案))
+    redact_group: value
+    score: 0.97
+
+  # Require an address cue plus an actual numbered street/building/room.
+  # Temper the name prefix to stop at verbs and clause boundaries.
+  - name: contextual_detailed_address
+    label: private_address
+    pattern: >-
+      (?x)(?:住址|现住址|家庭住址|户籍地址|住所地址|租住(?:在|于|的)?|居住(?:在|于)?|现住(?:在|于)?|位于|窜至|入住|抓获于|查获于|去往|赶至)
+      [ \t]*(?:为|是|[:：])?[ \t]*
+      (?P<value>(?:(?!(?:被告人|嫌疑人|被害人|侦查人员|民警|通过|期间|经营|销售|购买|盗取|盗窃|抓获|查获|发现|用作|作为|之后|以后|的|将|把|被|并|进行))
+      [\u4e00-\u9fffA-Za-z0-9·（）()\-]){1,70}?
+      (?:\d{1,6}|[一二三四五六七八九十百]{1,4})(?:号楼|号院|号|巷|弄|栋|幢|座|单元|室|房间|房|楼|层)
+      (?:[ \t]*(?:\d{1,6}|[一二三四五六七八九十百]{1,4})(?:号楼|号院|号|巷|弄|栋|幢|座|单元|室|房间|房|楼|层))*)
+      (?=[ \t]*(?:[，,。；;：:\r\n]|$|的|内|外|门口|附近|处|一带|用作|作为|经营|抓获|查获|盗取|盗窃|东|西|南|北|与|并))
+    redact_group: value
+    score: 0.985
+
+  - name: legal_preposition_detailed_address
+    label: private_address
+    pattern: >-
+      (?x)(?:在|到|至|去|往|于)
+      (?P<value>[\u4e00-\u9fff]{2,10}(?:省|市|县|区)
+      (?:(?!(?:被告人|嫌疑人|被害人|通过|期间|经营|销售|购买|盗取|盗窃|抓获|查获|发现|用作|作为|的|将|把|被|并|进行))
+      [\u4e00-\u9fffA-Za-z0-9·（）()\-]){1,55}?
+      (?:\d{1,6}|[一二三四五六七八九十百]{1,4})(?:号楼|号院|号|巷|弄|栋|幢|座|单元|室|房间|房|楼|层)
+      (?:[ \t]*(?:\d{1,6}|[一二三四五六七八九十百]{1,4})(?:号楼|号院|号|巷|弄|栋|幢|座|单元|室|房间|房|楼|层))*)
+      (?=[ \t]*(?:[，,。；;：:\r\n]|$|的|内|外|门口|附近|处|一带|用作|作为|抓获|查获|盗取|盗窃))
+      (?=[^。；;\r\n]{0,100}(?:仓库|住处|住所|租住|被告人|嫌疑人|被害人|公安|民警|窜至|盗窃|盗取|抓获|查获|缴获|藏匿))
+    redact_group: value
+    score: 0.98
+
+  - name: contextual_cash_or_legal_amount
+    label: financial_amount
+    pattern: >-
+      (?ix)(?:现金|赔偿金|赔偿款|赔偿|经济损失|损失金额|财产损失|损失|罚金|罚款|赃款|涉案价值|涉案金额|借款|贷款|欠款|转账|汇款|盗得|盗取|骗取|抢得|价值为|价值约|价值人民币|价值)
+      [ \t]*(?:金额|数额|共计|合计|共|计|约|为|是|达|了|[:：]){0,3}[ \t]*
+      (?P<value>(?:人民币|美元|港币|港元|日元|欧元|英镑|RMB|CNY|USD|HKD|JPY|EUR|GBP|[¥￥$])?[ \t]*
+      (?:(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?[ \t]*(?:(?:亿|万|千|百)?(?:元人民币|人民币|美元|港币|港元|日元|欧元|英镑|元|美分|港仙|角|分))?[ \t]*(?:至|到|[-~～—–])[ \t]*(?:人民币|美元|港币|港元|日元|欧元|英镑|RMB|CNY|USD|HKD|JPY|EUR|GBP|[¥￥$])?[ \t]*)?
+      (?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?[ \t]*(?:亿|万|千|百)?(?:元人民币|人民币|美元|港币|港元|日元|欧元|英镑|元|美分|港仙|角|分))
+      (?![\d.]|钟|之|[ \t]*/[ \t]*(?:平方米|立方米|公斤|千克|吨|股|m2|m3))
+    redact_group: value
+    score: 0.98
+
+  - name: amount_before_cash_or_compensation
+    label: financial_amount
+    pattern: >-
+      (?ix)(?<![\d.A-Za-z])
+      (?P<value>(?:人民币|美元|港币|港元|日元|欧元|英镑|RMB|CNY|USD|HKD|JPY|EUR|GBP|[¥￥$])?[ \t]*
+      (?:(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?[ \t]*(?:(?:亿|万|千|百)?(?:元人民币|人民币|美元|港币|港元|日元|欧元|英镑|元|美分|港仙|角|分))?[ \t]*(?:至|到|[-~～—–])[ \t]*(?:人民币|美元|港币|港元|日元|欧元|英镑|RMB|CNY|USD|HKD|JPY|EUR|GBP|[¥￥$])?[ \t]*)?
+      (?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?[ \t]*(?:亿|万|千|百)?(?:元人民币|人民币|美元|港币|港元|日元|欧元|英镑|元|美分|港仙|角|分))
+      (?=[ \t]*(?:的)?(?:现金|赔偿金|赔偿款|罚金|罚款|赃款|借款|欠款))
+    redact_group: value
+    score: 0.98
+

@@ -1,8 +1,70 @@
-/magpie
-/magpie.exe
-/magpie.app/
+# Private development history and machine-specific state.
+/z-steps/
+/.agents/
+/.aws/
+/.codex/
+/.migration/
+/.worktrees/
+/.test-locks/
+/API-router开发任务项目管理.md
+/产品设计.md
+/架构设计.md
+
+# Dependencies, caches and generated delivery/verification output.
+node_modules/
+__pycache__/
+*.pyc
 /dist/
-/magpie-dev
-/rsrc_windows_*.syso
-/magpie-dev-backend
-/magpie-dev.new
+/artifacts/
+/tmp/
+/temp/
+/magpie/scripts/host-acceptance/evidence/
+# Upstream landing site and release automation are not part of API-router.
+/magpie/site/
+/magpie/.github/
+/api-router
+/api-router.exe
+/magpie/api-router
+/magpie/api-router.exe
+playwright-report/
+test-results/
+*.test
+*.test.exe
+*.prof
+*.pprof
+
+# Downloaded models and local inference runtime packages.
+/models/
+/runtime/
+*.gguf
+*.gguf.part*
+*.safetensors
+*.onnx
+
+# Local environment/credentials. Keep sanitized templates publishable.
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+/.npmrc
+/magpie/.npmrc
+/secrets/
+/credentials/
+/config.json
+/credentials.json
+/management.token
+/router.lock/
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite3-wal
+*.sqlite3-shm
+
+# Editor and OS files.
+/.idea/
+/.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini

@@ -1,0 +1,500 @@
+[
+  {
+    "ordinal": 1,
+    "heading": "示例 1（重复人名逐个标记）：",
+    "input": {
+      "operation": "classify",
+      "fields": [
+        {
+          "field": 0,
+          "text": "张三联系李四，之后张三再次确认。"
+        }
+      ]
+    },
+    "output": {
+      "complete": true,
+      "fields": [
+        {
+          "field": 0,
+          "complete": true,
+          "findings": [
+            {
+              "label": "private_person",
+              "start": 0,
+              "end": 2,
+              "text": "张三",
+              "confidence": 0.9
+            },
+            {
+              "label": "private_person",
+              "start": 4,
+              "end": 6,
+              "text": "李四",
+              "confidence": 0.9
+            },
+            {
+              "label": "private_person",
+              "start": 9,
+              "end": 11,
+              "text": "张三",
+              "confidence": 0.9
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "ordinal": 2,
+    "heading": "示例 2（人名与邮箱分别标记）：",
+    "input": {
+      "operation": "classify",
+      "fields": [
+        {
+          "field": 0,
+          "text": "测试用户张三的邮箱是test.user@example.com"
+        }
+      ]
+    },
+    "output": {
+      "complete": true,
+      "fields": [
+        {
+          "field": 0,
+          "complete": true,
+          "findings": [
+            {
+              "label": "private_person",
+              "start": 4,
+              "end": 6,
+              "text": "张三",
+              "confidence": 0.9
+            },
+            {
+              "label": "private_email",
+              "start": 10,
+              "end": 31,
+              "text": "test.user@example.com",
+              "confidence": 0.98
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "ordinal": 3,
+    "heading": "示例 3（道路名整体是地址）：",
+    "input": {
+      "operation": "classify",
+      "fields": [
+        {
+          "field": 0,
+          "text": "地址为张三路88号"
+        }
+      ]
+    },
+    "output": {
+      "complete": true,
+      "fields": [
+        {
+          "field": 0,
+          "complete": true,
+          "findings": [
+            {
+              "label": "private_address",
+              "start": 3,
+              "end": 9,
+              "text": "张三路88号",
+              "confidence": 0.92
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "ordinal": 4,
+    "heading": "示例 4（姓名禁止改成组合标签）：",
+    "input": {
+      "operation": "classify",
+      "fields": [
+        {
+          "field": 0,
+          "text": "销售总监张三于2026-10-13在浦东新区出差"
+        }
+      ]
+    },
+    "output": {
+      "complete": true,
+      "fields": [
+        {
+          "field": 0,
+          "complete": true,
+          "findings": [
+            {
+              "label": "private_person",
+              "start": 4,
+              "end": 6,
+              "text": "张三",
+              "confidence": 0.9
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "ordinal": 5,
+    "heading": "示例 4A（岗位名称保留，只标记姓名）：",
+    "input": {
+      "operation": "classify",
+      "fields": [
+        {
+          "field": 0,
+          "text": "如有疑问，请联系财务专员李芳。"
+        }
+      ]
+    },
+    "output": {
+      "complete": true,
+      "fields": [
+        {
+          "field": 0,
+          "complete": true,
+          "findings": [
+            {
+              "label": "private_person",
+              "start": 12,
+              "end": 14,
+              "text": "李芳",
+              "confidence": 0.95
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "ordinal": 6,
+    "heading": "示例 5（企业名不是人名）：",
+    "input": {
+      "operation": "classify",
+      "fields": [
+        {
+          "field": 0,
+          "text": "与张三科技有限公司签订合同"
+        }
+      ]
+    },
+    "output": {
+      "complete": true,
+      "fields": [
+        {
+          "field": 0,
+          "complete": true,
+          "findings": [
+            {
+              "label": "customer_supplier",
+              "start": 1,
+              "end": 9,
+              "text": "张三科技有限公司",
+              "confidence": 0.88
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "ordinal": 7,
+    "heading": "示例 6（合法的 combined_identifiable）：",
+    "input": {
+      "operation": "classify",
+      "fields": [
+        {
+          "field": 0,
+          "text": "2026年10月13日华东大区销售总监在世纪大道100号完成签约"
+        }
+      ]
+    },
+    "output": {
+      "complete": true,
+      "fields": [
+        {
+          "field": 0,
+          "complete": true,
+          "findings": [
+            {
+              "label": "combined_identifiable",
+              "start": 0,
+              "end": 28,
+              "text": "2026年10月13日华东大区销售总监在世纪大道100号",
+              "confidence": 0.78
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "ordinal": 8,
+    "heading": "示例 7（不合法的 combined_identifiable）：",
+    "input": {
+      "operation": "classify",
+      "fields": [
+        {
+          "field": 0,
+          "text": "北京地区的销售总监10月参加了会议"
+        }
+      ]
+    },
+    "output": {
+      "complete": true,
+      "fields": [
+        {
+          "field": 0,
+          "complete": true,
+          "findings": []
+        }
+      ]
+    }
+  },
+  {
+    "ordinal": 9,
+    "heading": "示例 8（密钥与配置）：",
+    "input": {
+      "operation": "classify",
+      "fields": [
+        {
+          "field": 0,
+          "text": "数据库密码为MyP@ssw0rd123，API密钥sk-abc123xyz"
+        }
+      ]
+    },
+    "output": {
+      "complete": true,
+      "fields": [
+        {
+          "field": 0,
+          "complete": true,
+          "findings": [
+            {
+              "label": "secret",
+              "start": 6,
+              "end": 19,
+              "text": "MyP@ssw0rd123",
+              "confidence": 0.95
+            },
+            {
+              "label": "secret",
+              "start": 25,
+              "end": 37,
+              "text": "sk-abc123xyz",
+              "confidence": 0.96
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "ordinal": 10,
+    "heading": "示例 9（多个邮箱）：",
+    "input": {
+      "operation": "classify",
+      "fields": [
+        {
+          "field": 0,
+          "text": "抄送给alice@corp.com和bob@corp.com"
+        }
+      ]
+    },
+    "output": {
+      "complete": true,
+      "fields": [
+        {
+          "field": 0,
+          "complete": true,
+          "findings": [
+            {
+              "label": "private_email",
+              "start": 3,
+              "end": 17,
+              "text": "alice@corp.com",
+              "confidence": 0.98
+            },
+            {
+              "label": "private_email",
+              "start": 18,
+              "end": 30,
+              "text": "bob@corp.com",
+              "confidence": 0.98
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "ordinal": 11,
+    "heading": "示例 10（已脱敏内容不再标记）：",
+    "input": {
+      "operation": "classify",
+      "fields": [
+        {
+          "field": 0,
+          "text": "客户<PERSON:1>的邮箱是<EMAIL:2>"
+        }
+      ]
+    },
+    "output": {
+      "complete": true,
+      "fields": [
+        {
+          "field": 0,
+          "complete": true,
+          "findings": []
+        }
+      ]
+    }
+  },
+  {
+    "ordinal": 12,
+    "heading": "示例 11（规则未覆盖的合同金额）：",
+    "input": {
+      "operation": "classify",
+      "fields": [
+        {
+          "field": 0,
+          "text": "该项目投资一千两百万元人民币"
+        }
+      ]
+    },
+    "output": {
+      "complete": true,
+      "fields": [
+        {
+          "field": 0,
+          "complete": true,
+          "findings": [
+            {
+              "label": "contract_amount",
+              "start": 5,
+              "end": 14,
+              "text": "一千两百万元人民币",
+              "confidence": 0.85
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "ordinal": 13,
+    "heading": "示例 12（未公开财务数据）：",
+    "input": {
+      "operation": "classify",
+      "fields": [
+        {
+          "field": 0,
+          "text": "本季度利润预计3.2亿，尚未对外披露"
+        }
+      ]
+    },
+    "output": {
+      "complete": true,
+      "fields": [
+        {
+          "field": 0,
+          "complete": true,
+          "findings": [
+            {
+              "label": "unpublished_revenue",
+              "start": 7,
+              "end": 11,
+              "text": "3.2亿",
+              "confidence": 0.88
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "ordinal": 14,
+    "heading": "示例 13（税号不能误判为电话）：",
+    "input": {
+      "operation": "classify",
+      "fields": [
+        {
+          "field": 0,
+          "text": "纳税识别号：91TEST000000000001"
+        }
+      ]
+    },
+    "output": {
+      "complete": true,
+      "fields": [
+        {
+          "field": 0,
+          "complete": true,
+          "findings": [
+            {
+              "label": "organization_identifier",
+              "start": 6,
+              "end": 24,
+              "text": "91TEST000000000001",
+              "confidence": 0.98
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "ordinal": 15,
+    "heading": "示例 14（英文法律实体逐次标记）：",
+    "input": {
+      "operation": "classify",
+      "fields": [
+        {
+          "field": 0,
+          "text": "Mr Anders Fredin applied on 13 April 1993 to the Supreme Administrative Court."
+        }
+      ]
+    },
+    "output": {
+      "complete": true,
+      "fields": [
+        {
+          "field": 0,
+          "complete": true,
+          "findings": [
+            {
+              "label": "private_person",
+              "start": 0,
+              "end": 16,
+              "text": "Mr Anders Fredin",
+              "confidence": 0.94
+            },
+            {
+              "label": "private_date",
+              "start": 28,
+              "end": 41,
+              "text": "13 April 1993",
+              "confidence": 0.97
+            },
+            {
+              "label": "organization_name",
+              "start": 49,
+              "end": 77,
+              "text": "Supreme Administrative Court",
+              "confidence": 0.92
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

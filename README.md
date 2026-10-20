@@ -1,291 +1,97 @@
-<div align="center">
+# API-router
 
-<a href="https://usemagpie.ai"><img src="site/public/img/icon-256.png" width="112" alt="magpie"></a>
+API-router 是运行在本机的模型路由服务，提供网页管理、云端 API 供应商配置、应用独立 Profile，以及可选的本地小模型判断、执行与实验性脱敏。项目基于固定版本的 Magpie 源码改造，产品入口为 `magpie/cmd/api-router`。
 
-# magpie
+当前为开发版本，优先适配 WorkBuddy 与 Loomy 的本机模式。仓库中的其他预置应用和协议适配器不表示全部宿主、版本、平台或模型已经通过兼容验收。当前提供 Windows x64 打包与本地安装流程；macOS、Linux 的源码构建和测试入口可用性应以各平台实际运行结果为准。
 
-### Every agent's model. One place.
+## 当前功能
 
-**Claude Code on Kimi. Codex on DeepSeek. Gemini CLI on GLM. OpenCode on your ChatGPT plan.**<br>
-Switch any of them from the menu bar. One local gateway serves them all,<br>
-and when a quota runs out, it quietly moves on to the next account.
+- 云端供应商：保存 API Key、地址、协议和模型；由用户主动获取模型或执行连接检查。应用通过独立 Profile 绑定供应商与模型。
+- 云端请求：支持 OpenAI Chat、OpenAI Responses、Anthropic Messages 的受限协议契约，提供有限重试、流式响应、请求观测和用量统计。工具调用及协议转换仍取决于客户端输入与上游能力。
+- 本地模型：提供设备检测、固定 Spark-X2.5-1.7B / 4B 模型与运行时下载、单推理进程管理、上下文和阶段预算设置。用户需明确启用、安装并完成能力检查，才可选择实验性判断与执行；样本检查通过不代表模型质量正式验收。
+- 脱敏：具备本地识别、严格结果校验、映射及响应还原流程。识别质量尚未正式验收；实验性试用需要显式启动参数，校验失败会阻断云端请求。
+- 宿主接入：提供 WorkBuddy、Loomy 的配置适配、变更预览与独立恢复命令；兼容范围见[宿主配置文档](magpie/docs/subsystems/api-router-host-config.md)和[Loomy 文档](magpie/docs/subsystems/api-router-loomy.md)。
+- 本机管理：内嵌网页、新手指南、服务启动/停止/重启、Windows 每用户登录自启和保留恢复工具的卸载流程。
 
-[![Release](https://img.shields.io/github/v/release/yetone/magpie-releases?label=release&color=111111)](https://github.com/yetone/magpie-releases/releases/latest) [![Stars](https://img.shields.io/github/stars/yetone/magpie?style=flat&color=111111)](https://github.com/yetone/magpie/stargazers) [![Discord](https://img.shields.io/badge/Discord-join-5865F2?logo=discord&logoColor=white)](https://discord.gg/vGSnD3ZKQF) [![License](https://img.shields.io/badge/license-MIT-111111)](LICENSE)<br>
-![macOS](https://img.shields.io/badge/macOS-000000?logo=apple&logoColor=white) ![Windows](https://img.shields.io/badge/Windows-0078D4?logo=windows&logoColor=white) ![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black) ![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white) ![Termux](https://img.shields.io/badge/Termux-000000?logo=android&logoColor=white)
+服务默认尝试 `127.0.0.1:13145`。端口被占用时自动绑定其他可用回环端口，保存实际地址，并同步已接入 Router 的 WorkBuddy、Loomy 配置；后续启动继续使用保存的端口。同步失败会撤回本次宿主修改并报告启动失败。首次启动不会下载、启用或加载模型；关闭网页不会停止服务。浏览器通过同源握手自动连接管理接口，命令行管理客户端使用启动时报告的私有令牌文件。云端请求使用应用绑定的供应商凭证，管理令牌不能用作模型请求凭证。
 
-<sub>Sponsors</sub><br>
-<a href="https://usemagpie.ai/go/apinebula/readme"><picture><source media="(prefers-color-scheme: dark)" srcset="site/public/img/sponsor-apinebula-dark.svg"><img src="site/public/img/sponsor-apinebula.svg" height="36" alt="APINEBULA"></picture></a>
+## 从源码运行
 
-**[Download](https://usemagpie.ai)** &nbsp;·&nbsp; **[Docs](https://usemagpie.ai/docs/start)** &nbsp;·&nbsp; **[Reference](docs/reference.md)** &nbsp;·&nbsp; **[Plugins](https://github.com/magpie-community/plugins)** &nbsp;·&nbsp; **[Discord](https://discord.gg/vGSnD3ZKQF)** &nbsp;·&nbsp; **English** · [简体中文](README.zh-CN.md)
+需要 `magpie/go.mod` 指定的 Go 版本（当前为 **1.26.8**）。产品二进制内嵌网页，普通构建不需要 Node 或桌面 WebView。
 
-<br>
+在仓库根构建 Windows 版本：
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="site/public/img/agents-dark.png">
-  <img src="site/public/img/agents-light.png" width="900" alt="magpie's Agents page: Claude Code on Kimi K3, Codex on DeepSeek V4 Pro, Gemini CLI on GLM-5.3, each picked from one list">
-</picture>
+```powershell
+go -C magpie build -trimpath -o dist/api-router.exe ./cmd/api-router
+.\magpie\dist\api-router.exe serve
+```
 
-</div>
+日常启动建议在仓库根执行 `start.cmd`，或运行
+`powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/start-project.ps1 -NoBrowser`。
+此入口固定使用 `magpie/dist/api-router.exe` 和 Windows 用户的正常配置目录，
+重复运行复用已有服务，并检查保存的监听地址、实际实例和 WorkBuddy 接入地址。
+只检查、不启动可添加 `-CheckOnly`。确认已退出或 PID 被复用的本产品残留锁会被完整归档；
+活跃实例和未知锁保持原样，其他程序占用的端口会被自动避开。
+历史测试使用的临时端口和专用 APPDATA / LOCALAPPDATA 不属于此入口；
+不要从历史测试目录选择 EXE，或只改宿主端口来迁就另一套实例。
+请使用启动入口打开实际管理地址；若已运行的 WorkBuddy 或 Loomy 缓存了旧地址，
+端口变更后重新打开应用，让它加载已同步的配置。
 
-<br>
-
-## Is magpie for you?
-
-Each agent keeps its model in its own file, in its own format, with its own keys and base URLs. A subscription you pay for works in one agent and nowhere else. magpie puts all of that behind one app and one local gateway:
-
-- **Pick any model for any agent** from one list. magpie edits the one key that matters in the agent's own config.
-- **Use one provider everywhere**: an API key, a local model, or the Claude, ChatGPT, Copilot, Gemini or Grok plan you're signed in to.
-- **Keep going when a quota runs out**: a routing group moves to the next account or model, and the agent never sees the error.
-
-It's for you if you use more than one agent, more than one provider, or more than one account. If you use one agent on its vendor's own plan and that's enough, you don't need it.
-
-Runs on macOS, Windows and Linux (menu bar app, window, TUI, web UI and CLI), in Docker, and on Termux.
-
-## Quick start
-
-**1 · Install.** Download the app from **[usemagpie.ai](https://usemagpie.ai)**, or run:
+macOS / Linux：
 
 ```sh
-curl -fsSL https://usemagpie.ai/install.sh | sh
+go -C magpie build -trimpath -o dist/api-router ./cmd/api-router
+./magpie/dist/api-router serve
 ```
 
-<sub>Mac builds are signed and notarised, and every build updates itself. Behind a firewall, use `--proxy` or `--mirror`. Or `go install github.com/yetone/magpie@latest`, or the [Docker image](https://usemagpie.ai/docs/docker).</sub>
+也可以执行 `make -C magpie api-router`。`make build`、模块根目录的 `go build .`、原 Dockerfile 构建的是上游 Magpie；API-router 使用 `./cmd/api-router`。
 
-**2 · Add a provider.** Open magpie and go to **Providers → Add provider**. Pick a preset and paste a key, or sign in with a subscription.
+打开启动输出中的管理地址，在供应商页添加云端供应商，再到应用页绑定模型并检查连接。本地模型和脱敏分别管理，按页面状态完成各自的检查。
 
-**3 · Pick a model** for each agent on the **Agents** page. Start a new session and it's on the new model.
-
-Or do it all from the terminal:
+常用命令（将 `api-router` 替换为本机二进制路径）：
 
 ```sh
-magpie provider add deepseek sk-…              # a preset needs only the key
-magpie claude deepseek/deepseek-v4-pro          # Claude Code on DeepSeek
-magpie codex moonshot/kimi-k2.5                 # Codex on Kimi
-magpie group add "Opus anywhere" models=claude/claude-opus-5-5,copilot/claude-opus-5.5 routing=smart
-magpie claude group/opus-anywhere               # fails over between subscriptions
-magpie save work && magpie use work             # profiles
-magpie quota                                    # what's left on every plan
-magpie tui                                      # the whole thing, in a terminal
+api-router --help
+api-router dirs
+api-router config check
+api-router healthcheck
+api-router service --help
+api-router host --help
 ```
 
-magpie finds the subscriptions your agents are signed in to by reading their sign-ins (Claude Code's and Codex's files, the Keychain). To keep it from reading them, turn off Settings → Privacy → *Subscription accounts*, or run `magpie accounts discovery off` (`on` turns it back on). `MAGPIE_NO_ACCOUNTS=1` turns it off for one run without changing the saved setting. API-key providers work either way.
+前台 `serve` 使用 `Ctrl+C` 停止。Windows 安装版也可以使用 `service start` 在后台启动；服务管理和恢复说明见 [Windows 使用文档](magpie/docs/windows-delivery.md)。
 
-## Supported agents
-
-<table>
-<tr><td>
-
-Claude Code · Claude Desktop · Claude Science · Codex · Gemini CLI · Antigravity CLI · OpenCode · OpenChamber · MiMo Code · DevEco Code · Pi · oh-my-pi · StepCode · Aside · OmO · Prime Agent · Goose · Cursor CLI · Cursor Private Inference · Zed · VS Code Chat · VS Code Insiders · VSCodium Chat · JetBrains Air · Copilot (JetBrains) · Copilot CLI · Crush · DeepSeek Harness · Reasonix Studio · Command Code · fx · Devin · Hermes Agent · Mister Morph · Kimi Code · jcode · Qwen Code · Muse Code · Empryo · MiniMax Code · Droid · Cline · Qoder · Qoder CN · Grok Build · Grok App · ZCode · WorkBuddy · WorkBuddy AI · CodeBuddy Code · Pencil · T3 Code · OpenHanako · AtomCode · Snow CLI · Alma · Cindy · Ante · AstrBot
-
-</td></tr>
-</table>
-
-magpie shows only the agents installed on your machine; setup notes for some of them are in the [reference](docs/reference.md#notes-on-some-agents). Anything else that takes a base URL can use the gateway too:
+显式试用实验性脱敏：
 
 ```sh
-export OPENAI_BASE_URL=http://127.0.0.1:3425/v1     OPENAI_API_KEY=magpie
-export ANTHROPIC_BASE_URL=http://127.0.0.1:3425     ANTHROPIC_API_KEY=magpie
-export GOOGLE_GEMINI_BASE_URL=http://127.0.0.1:3425 GEMINI_API_KEY=magpie
+api-router serve --experimental-redaction
 ```
 
-## How it fits together
+试用仍需在页面中配置并安装相应模型，不能据此将识别结果视为可靠隐私保护。详细边界见[脱敏文档](magpie/docs/subsystems/api-router-redaction.md)。
 
-The gateway at `127.0.0.1:3425` speaks OpenAI Chat, OpenAI Responses, Anthropic Messages and Gemini, and translates between them, streaming, tool calls and reasoning included.
+## 测试与打包
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="site/public/img/architecture-dark.svg">
-  <img src="site/public/img/architecture.svg" alt="How magpie fits together: your agents send requests to the magpie gateway at 127.0.0.1:3425, which routes them through routing groups and plugins to your API keys, subscriptions and local models.">
-</picture>
-
-
-## What it does
-
-### Any model, any agent
-
-Click a value and a searchable list opens: every model of every provider you added, as `provider/model`. The agent's config is rewritten atomically, and its comments, order and formatting stay as they were. **Profiles** save every agent's setup under one name ("Budget", "Focus") and switch them all back in one move. Each agent can also have its own short list of models; a profile keeps that list too.
-
-<table>
-<tr>
-<td width="50%">
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="site/public/img/panel-dark.png">
-  <img src="site/public/img/panel-light.png" alt="The menu bar panel">
-</picture>
-</td>
-<td width="50%">
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="site/public/img/picker-dark.png">
-  <img src="site/public/img/picker-light.png" alt="The model picker">
-</picture>
-</td>
-</tr>
-</table>
-
-### Providers
-
-Pick a preset, paste a key. Model lists come from the vendor, with names and reasoning levels filled in from [models.dev](https://models.dev), so a model released this morning is in your picker on the next refresh.
-
-> **Presets include** Anthropic · OpenAI · Google Gemini · Google Vertex AI · DeepSeek · Kimi · Zhipu GLM · MiniMax · StepFun · Qwen · Baidu Qianfan · Tencent Cloud · Huawei Cloud MaaS · Volcengine Ark · Mistral · Groq · Nous Portal · xAI · OpenRouter · Together · Fireworks · SiliconFlow · NVIDIA NIM · ModelScope · Ollama · LM Studio … and any OpenAI- or Anthropic-compatible URL.
-
-**Import** brings in the providers from CC Switch, Claude Code, Codex and Alma. **[Add to magpie](https://usemagpie.ai/docs/import)** links let a provider's website hand its config to magpie in one click. Each key and each account can go through a proxy of its own.
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="site/public/img/add-dark.png">
-  <img src="site/public/img/add-light.png" width="900" alt="Add provider: subscriptions to sign in to, vendors, relays and local servers">
-</picture>
-
-### Subscriptions
-
-An agent you're signed in to is a subscription with models behind it, so magpie offers it as a provider to every other agent. Add several accounts per subscription and magpie fails over between them.
-
-- **Claude**: drives the real local `claude` binary and bridges your agent's tools over MCP
-- **Codex / ChatGPT**: your ChatGPT plan's models, in every other agent
-- **GitHub Copilot**, **Gemini (Code Assist)**, **Antigravity**, **Grok (SuperGrok)** and more
-- **Any OpenCode auth plugin or pi package** from npm
-
-**Daily warm-up** starts each Claude and ChatGPT account's 5-hour window at the times you choose, or the moment the last one resets.
-
-### Routing groups
-
-A **routing group** is several models an agent picks as one, such as `group/daily-coding`. The gateway spreads requests over every member's keys and accounts:
-
-| Mode | What it does |
-| :-- | :-- |
-| **`smart`** | Of the subscriptions with quota left, use the one that renews soonest, so less is wasted at the reset |
-| **`order`** | Use the first model until it can't answer, then the next |
-| **`rotate`** | Move to the next member on each turn |
-| **`usage`** | Use the least-used member first |
-| **`pace`** | Use the account with the most of its week left per hour until it resets |
-
-A conversation **stays with the account that answered it** while the vendor's prompt cache is worth keeping. Groups can contain groups. **[Intent routing](https://usemagpie.ai/docs/intent)** has a small model of your choice read each new turn, so tests go to the strong model and quick questions to the cheap one. The Routing view shows every decision live.
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="site/public/img/routing-dark.png">
-  <img width="760" src="site/public/img/routing-light.png" alt="The Routing view: four agents through magpie to seven providers, live">
-</picture>
-
-<table>
-<tr>
-<td width="50%">
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="site/public/img/intent-trace-dark.png">
-  <img src="site/public/img/intent-trace-light.png" alt="An intent-routed turn, explained step by step">
-</picture>
-</td>
-<td width="50%">
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="site/public/img/nested-routing-dark.png">
-  <img src="site/public/img/nested-routing-light.png" alt="A routing group inside a routing group">
-</picture>
-</td>
-</tr>
-</table>
-
-### Plugins
+产品统一回归需要 Go、Node（基线 **22.23.2**，支持 22 / 24）及锁定的 Playwright 浏览器。先按[回归文档](magpie/docs/product-regression.md)准备依赖，再从仓库根执行：
 
 ```sh
-magpie plugin add opencode-gemini-auth   # an OpenCode plugin from npm
-magpie plugin add pi-antigravity         # a pi package, the same way
-magpie plugin login google-plugin        # its own sign-in flow, in magpie
+node magpie/scripts/product-regression.cjs
 ```
 
-Plugins run on [Bun](https://bun.sh), downloaded the first time one needs it. A plugin signs in, lists its models and makes each request; agents use those models like any other provider's. Browse **[magpie-community/plugins](https://github.com/magpie-community/plugins)**, or [write your own](https://usemagpie.ai/docs/plugins).
+入口包含产品构建、产品及共享包的 race / vet、Chromium 与 WebKit 页面测试；任一步失败返回非零。旧 `make test-ui` 覆盖上游 Magpie GUI，产品页面使用上述统一入口。自动化回归使用隔离目录与模拟上游，不能替代真实模型、真实宿主及各平台验收。
 
-A plugin can also be **gateway middleware**: JavaScript that sees what every agent sends and gets back. `onRequest` can rewrite a request or turn it away, `onEvent` sees each streamed event, `onResponse` the whole reply. A hook that throws or runs too long leaves the request as it was.
+Windows x64 固定版本包由 `magpie/scripts/package-windows.ps1` 生成，必须提供明确的语义版本；安装器只接收本地包。用法、校验和安装/卸载边界见 [Windows 交付文档](magpie/docs/windows-delivery.md)与[交付子系统](magpie/docs/subsystems/api-router-delivery.md)。正式公开下载地址、发布者签名与自动更新尚未接入。
 
-```js
-// alias.middleware.js — magpie plugin add ./alias.middleware.js
-export function onRequest(body, ctx) {
-  if (body.model === "fast") return { ...body, model: "deepseek/deepseek-chat" };
-}
-```
+## 代码与文档
 
-<details>
-<summary><b>Ready-made middleware</b>, most of it what <a href="https://github.com/QuantumNous/new-api">New API</a> does for its channels, with the same JSON</summary>
+- [产品服务与命令](magpie/docs/subsystems/api-router-service.md)
+- [应用 Profile](magpie/docs/subsystems/api-router-apps.md)、[供应商](magpie/docs/subsystems/api-router-providers.md)、[云端协议](magpie/docs/subsystems/api-router-cloud.md)
+- [本地模型与运行时](magpie/docs/subsystems/api-router-runtime.md)、[脱敏](magpie/docs/subsystems/api-router-redaction.md)、[存储](magpie/docs/subsystems/api-router-storage.md)
+- [子系统索引](magpie/docs/subsystems/README.md)
 
-<br>
+`magpie/` 同时保留上游源码、测试与资料，其中部分能力没有接入 API-router 的产品生命周期。`magpie/README.md`、`magpie/README.zh-CN.md` 是上游项目归档，不作为 API-router 的安装或发布入口。上游站点 `magpie/site/` 和旧工作流 `magpie/.github/` 不随当前公开源码快照分发；归档图片与相关文档使用固定基线的上游链接。历史开发记录和本机验收产物也不随公开源码分发；公开文档中的历史记录描述不代表当前版本重新完成过验收。
 
-| Package | What it does |
-| :-- | :-- |
-| `param-override` | New API's `param_override`: set, delete, move or rewrite request fields, under conditions, or turn a request away |
-| `model-map` | New API's `model_mapping`: send a model under another name; replies keep the name asked for |
-| `system-prompt` | Your system prompt on every request, or some agents' or models' |
-| `word-guard` | New API's sensitive-word filter: turn away or mask words in what users send, and in replies |
-| `think-tags` | Take `<think>…</think>` out of replies, or put `reasoning_content` into them |
+## 来源与许可证
 
-```sh
-magpie plugin add @magpie-community/middleware-model-map
-magpie plugin options model-map '{"mapping": {"fast": "deepseek/deepseek-chat"}}'
-```
+本项目导入的 Magpie 基线为 [`707fbb249df755423d3b2b77c6f001dd376d75c4`](https://github.com/yetone/magpie/commit/707fbb249df755423d3b2b77c6f001dd376d75c4)。本地导入记录中的来源仓库为 [`xyzane54/magpie`](https://github.com/xyzane54/magpie)，原始项目与模块路径为 [`yetone/magpie`](https://github.com/yetone/magpie)。API-router 与上游 Magpie 的产品发布分别管理。
 
-Find them under Plugins › Discover › Gateway middleware. See [Gateway middleware](https://usemagpie.ai/docs/plugins#middleware).
-
-</details>
-
-### Usage and cost
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="site/public/img/usage-dark.png">
-  <img src="site/public/img/usage-light.png" width="900" alt="The Usage page: balances, tokens, cache hit rate and cost">
-</picture>
-
-| | |
-| :-- | :-- |
-| **Tokens and cost** | Tokens, cache reads and writes, reasoning and calls, with cost at list price in dollars or yuan; set your own price for any model |
-| **Quota** | Balances and quota windows for every key, plan and account (`magpie quota`), and a reminder before a window renews with much of it unused |
-| **Sessions** | Every agent conversation with its cost and title, reopened in your terminal with one click |
-| **Context** | How full each request's context window is, how much came from the cache, and what fills it |
-| **Bills** | By account and by upstream key, and OTLP export to your own observability stack |
-
-### Sharing
-
-| | |
-| :-- | :-- |
-| **Local network** | Turn on *Share on local network* and give each client a named gateway key with its own daily, weekly or monthly token and cost limit |
-| **[Remote magpie](https://usemagpie.ai/docs/remote)** | A laptop uses the providers, accounts and groups of the magpie on your desktop, and still wires its own agents |
-| **[Docker](https://usemagpie.ai/docs/docker)** | Run `ghcr.io/yetone/magpie` on a server or a NAS and manage it from the web UI |
-| **Sync** | Back up to a file, or sync machines over WebDAV (Nutstore, Nextcloud…), S3, or an encrypted GitHub repository backup |
-
-### Also
-
-- **Library**: write instructions, MCP servers and skills once; magpie writes them into each agent's files in its format, and removes only what it wrote.
-- **Web search for any model**: a model that can't search gets magpie's search: a provider that can, or search APIs (Tavily, Brave, Exa, Firecrawl, You.com, SearXNG). An API can hold several keys: searches take turns over them (or use them in order with `pick=order`), a key refused lately is asked last, and Tavily keys show what each has used of its limit, in Settings and in `magpie search`.
-- **Images and video**: an image tool for any agent over MCP, with the model you choose, and videos with a Grok subscription.
-- **Agents kept current**: the Agents page shows each CLI's version, updates it the way it was installed, and gives the commands for the ones you don't have.
-- **WSL**: on Windows, agents inside WSL distros are wired too, and their sessions counted.
-- **Keep awake**, light and dark, and your theme's look on [Omarchy](https://omarchy.org).
-
-## Documentation
-
-| | |
-| :-- | :-- |
-| **[Get started](https://usemagpie.ai/docs/start)** | The guided tour |
-| **[Reference](docs/reference.md)** | Every agent, provider option, gateway endpoint, CLI command and file |
-| **[Plugins](https://usemagpie.ai/docs/plugins)** | Use plugins and write your own |
-| **[Intent routing](https://usemagpie.ai/docs/intent)** | Route each turn by what it asks for |
-| **[Import links](https://usemagpie.ai/docs/import)** | "Add to magpie" buttons for provider websites |
-| **[Remote magpie](https://usemagpie.ai/docs/remote)** | Use one magpie's providers and groups from your other computers |
-| **[Docker](https://usemagpie.ai/docs/docker)** | Run magpie on a server or a NAS |
-
-## Privacy
-
-Your prompts, replies, keys and accounts go only to the providers you use. Once a day a released magpie tells us it is in use: a random id, its version and system, and which agents, providers and models it is used with, by magpie's own ids (a provider you added yourself is only `custom`), and for each partner listed first in the add sheet, how many times a day it was shown, opened and added (counts only). No names, URLs, accounts, keys, prompts or usage. Turn part or all of it off in **Settings → Privacy**, or with `DO_NOT_TRACK=1`. A partner's website and key links go through `usemagpie.ai/go/…`, which counts the click, and usemagpie.ai counts fetches of the partner list; the server sees these whatever the settings, and keeps no id or address. Icons named by a plugin, an import link or the library are fetched through `usemagpie.ai/api/icon`, so their hosts see Cloudflare's address, not yours; the server only passes the picture on, and counts and keeps nothing. The [Privacy page](https://usemagpie.ai/docs/privacy) lists everything magpie sends by itself, with an example and every switch; the [reference](docs/reference.md#counting-users) has the rules.
-
-## Community
-
-Questions, ideas, or a model that won't show up? Tell us on **[Discord](https://discord.gg/vGSnD3ZKQF)**. That is where feedback goes.
-
-**This repository doesn't take pull requests.** Only maintainers can open them. If you'd like a fix or a feature, describe it on Discord and we'll build it.
-
-If magpie saved you from editing one more config file, **a ⭐ helps others find it.**
-
-<a href="https://star-history.com/#yetone/magpie&Date">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=yetone/magpie&type=Date&theme=dark">
-    <img src="https://api.star-history.com/svg?repos=yetone/magpie&type=Date" width="600" alt="Star history">
-  </picture>
-</a>
-
-## License
-
-[MIT](LICENSE)
+根目录 [LICENSE](LICENSE) 原样保留 Magpie 的 MIT 许可证和 `Copyright (c) 2026 yetone` 声明，与 [magpie/LICENSE](magpie/LICENSE) 一致。保留的第三方组件及资源以其自身许可证和声明为准；模型与推理运行时通过产品配置的来源另行下载，不包含在本源码仓库中。

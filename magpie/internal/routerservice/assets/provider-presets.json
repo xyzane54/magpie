@@ -1,0 +1,758 @@
+[
+  {
+    "docsURL": "https://www.xfyun.cn/doc/spark/HTTP调用文档.html",
+    "endpoints": {
+      "chat": "https://spark-api-open.xf-yun.com/v1"
+    },
+    "icon": "spark-color",
+    "id": "spark",
+    "kind": "vendor",
+    "models": [
+      "4.0Ultra",
+      "generalv3.5",
+      "max-32k",
+      "generalv3",
+      "pro-128k",
+      "lite"
+    ],
+    "name": "Spark",
+    "website": "https://xinghuo.xfyun.cn"
+  },
+  {
+    "defaultProtocol": "chat",
+    "docsURL": "https://www.xfyun.cn/doc/spark/产品使用说明.html",
+    "endpoints": {
+      "anthropic": "https://maas-api.cn-huabei-1.xf-yun.com/anthropic",
+      "chat": "https://maas-api.cn-huabei-1.xf-yun.com/v2",
+      "responses": "https://maas-api.cn-huabei-1.xf-yun.com/v1"
+    },
+    "icon": "spark-color",
+    "id": "spark-maas",
+    "kind": "vendor",
+    "models": [
+      "spark-x2.5",
+      "spark-x2.5-4b",
+      "spark-x2.5-1.7b"
+    ],
+    "name": "Spark MaaS",
+    "website": "https://maas.xfyun.cn"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://api.anthropic.com"
+    },
+    "icon": "claude-color",
+    "id": "anthropic",
+    "keysURL": "https://console.anthropic.com/settings/keys",
+    "kind": "vendor",
+    "models": [
+      "claude-sonnet-4-6",
+      "claude-opus-4-6",
+      "claude-haiku-4-5-20251001",
+      "claude-sonnet-4-5-20250929"
+    ],
+    "name": "Anthropic",
+    "website": "https://console.anthropic.com"
+  },
+  {
+    "endpoints": {
+      "chat": "https://api.openai.com/v1",
+      "responses": "https://api.openai.com/v1"
+    },
+    "icon": "openai",
+    "id": "openai",
+    "keysURL": "https://platform.openai.com/api-keys",
+    "kind": "vendor",
+    "models": [
+      "gpt-5.4",
+      "gpt-5.4-mini",
+      "gpt-4.1",
+      "gpt-4.1-mini",
+      "gpt-4o",
+      "o3",
+      "o4-mini"
+    ],
+    "name": "OpenAI",
+    "website": "https://platform.openai.com"
+  },
+  {
+    "endpoints": {
+      "chat": "https://generativelanguage.googleapis.com/v1beta/openai"
+    },
+    "icon": "gemini-color",
+    "id": "google",
+    "keysURL": "https://aistudio.google.com/apikey",
+    "kind": "vendor",
+    "models": [
+      "gemini-2.5-pro",
+      "gemini-2.5-flash",
+      "gemini-2.5-flash-lite"
+    ],
+    "name": "Google Gemini",
+    "website": "https://aistudio.google.com"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://api.deepseek.com/anthropic",
+      "chat": "https://api.deepseek.com/v1",
+      "responses": "https://api.deepseek.com/v1"
+    },
+    "icon": "deepseek-color",
+    "id": "deepseek",
+    "keysURL": "https://platform.deepseek.com/api_keys",
+    "kind": "vendor",
+    "models": [
+      "deepseek-chat",
+      "deepseek-reasoner"
+    ],
+    "name": "DeepSeek",
+    "website": "https://platform.deepseek.com"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://api.x.ai",
+      "chat": "https://api.x.ai/v1",
+      "responses": "https://api.x.ai/v1"
+    },
+    "icon": "xai",
+    "id": "xai",
+    "keysURL": "https://console.x.ai",
+    "kind": "vendor",
+    "models": [
+      "grok-4",
+      "grok-3",
+      "grok-3-mini"
+    ],
+    "name": "xAI",
+    "website": "https://console.x.ai"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://api.moonshot.ai/anthropic",
+      "chat": "https://api.moonshot.ai/v1"
+    },
+    "icon": "kimi",
+    "id": "moonshot",
+    "keysURL": "https://platform.moonshot.ai/console/api-keys",
+    "kind": "vendor",
+    "models": [
+      "kimi-k2.5",
+      "kimi-k2-thinking",
+      "kimi-k2-turbo-preview",
+      "moonshot-v1-auto"
+    ],
+    "name": "Kimi (International)",
+    "website": "https://platform.moonshot.ai"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://api.moonshot.cn/anthropic",
+      "chat": "https://api.moonshot.cn/v1"
+    },
+    "icon": "kimi",
+    "id": "moonshot-cn",
+    "keysURL": "https://platform.moonshot.cn/console/api-keys",
+    "kind": "vendor",
+    "models": [
+      "kimi-k2.5",
+      "kimi-k2-thinking",
+      "kimi-k2-turbo-preview",
+      "moonshot-v1-auto"
+    ],
+    "name": "Kimi (China)",
+    "website": "https://platform.moonshot.cn"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://api.kimi.ai/coding",
+      "chat": "https://api.kimi.ai/coding/v1"
+    },
+    "icon": "kimi",
+    "id": "kimi-code",
+    "keysURL": "https://www.kimi.com/code/console",
+    "kind": "vendor",
+    "models": [
+      "kimi-for-coding"
+    ],
+    "name": "Kimi Code",
+    "website": "https://www.kimi.com/code"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://api.kimi.com/coding",
+      "chat": "https://api.kimi.com/coding/v1"
+    },
+    "icon": "kimi",
+    "id": "kimi-code-cn",
+    "keysURL": "https://www.kimi.com/code/console",
+    "kind": "vendor",
+    "models": [
+      "kimi-for-coding"
+    ],
+    "name": "Kimi Code (China)",
+    "website": "https://www.kimi.com/code"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://open.bigmodel.cn/api/anthropic",
+      "chat": "https://open.bigmodel.cn/api/paas/v4"
+    },
+    "icon": "zhipu-color",
+    "id": "zhipu",
+    "keysURL": "https://open.bigmodel.cn/usercenter/proj-mgmt/apikeys",
+    "kind": "vendor",
+    "models": [
+      "glm-5",
+      "glm-4.7",
+      "glm-4.5-air"
+    ],
+    "name": "Zhipu GLM",
+    "website": "https://open.bigmodel.cn"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://api.z.ai/api/anthropic",
+      "chat": "https://api.z.ai/api/paas/v4"
+    },
+    "icon": "zai",
+    "id": "zai",
+    "keysURL": "https://z.ai/manage-apikey/apikey-list",
+    "kind": "vendor",
+    "models": [
+      "glm-5",
+      "glm-4.7",
+      "glm-4.5-air"
+    ],
+    "name": "Z.ai",
+    "website": "https://z.ai"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://api.minimax.io/anthropic",
+      "chat": "https://api.minimax.io/v1"
+    },
+    "icon": "minimax-color",
+    "id": "minimax",
+    "keysURL": "https://platform.minimax.io/user-center/basic-information/interface-key",
+    "kind": "vendor",
+    "models": [
+      "MiniMax-M2.7",
+      "MiniMax-M2.5",
+      "MiniMax-M2.1"
+    ],
+    "name": "MiniMax",
+    "website": "https://platform.minimax.io"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://api.minimaxi.com/anthropic",
+      "chat": "https://api.minimaxi.com/v1"
+    },
+    "icon": "minimax-color",
+    "id": "minimax-cn",
+    "keysURL": "https://platform.minimaxi.com/user-center/basic-information/interface-key",
+    "kind": "vendor",
+    "models": [
+      "MiniMax-M2.7",
+      "MiniMax-M2.5",
+      "MiniMax-M2.1"
+    ],
+    "name": "MiniMax (China)",
+    "website": "https://platform.minimaxi.com"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://api.stepfun.ai",
+      "chat": "https://api.stepfun.ai/v1"
+    },
+    "icon": "stepfun-color",
+    "id": "stepfun",
+    "keysURL": "https://platform.stepfun.ai/interface-key",
+    "kind": "vendor",
+    "models": [
+      "step-3.5-flash",
+      "step-2-16k",
+      "step-1-8k"
+    ],
+    "name": "StepFun",
+    "website": "https://platform.stepfun.ai"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://api.stepfun.com",
+      "chat": "https://api.stepfun.com/v1"
+    },
+    "icon": "stepfun-color",
+    "id": "stepfun-cn",
+    "keysURL": "https://platform.stepfun.com/interface-key",
+    "kind": "vendor",
+    "models": [
+      "step-3.5-flash",
+      "step-2-16k",
+      "step-1-8k"
+    ],
+    "name": "StepFun (China)",
+    "website": "https://platform.stepfun.com"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://api.xiaomimimo.com/anthropic",
+      "chat": "https://api.xiaomimimo.com/v1",
+      "responses": "https://api.xiaomimimo.com/v1"
+    },
+    "icon": "mimocode",
+    "id": "xiaomi",
+    "keysURL": "https://platform.xiaomimimo.com/token-plan",
+    "kind": "vendor",
+    "models": [
+      "mimo-v2-pro",
+      "mimo-v2-flash"
+    ],
+    "name": "Xiaomi MiMo",
+    "website": "https://platform.xiaomimimo.com"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://qianfan.baidubce.com/anthropic",
+      "chat": "https://qianfan.baidubce.com/v2",
+      "responses": "https://qianfan.baidubce.com/v2"
+    },
+    "icon": "baiducloud-color",
+    "id": "baidu-qianfan",
+    "keysURL": "https://console.bce.baidu.com/qianfan/resource/token-plan",
+    "kind": "vendor",
+    "models": [
+      "qianfan-code-latest",
+      "deepseek-v4.1-flash",
+      "deepseek-v4-pro",
+      "deepseek-v4-pro-0813",
+      "deepseek-v4-flash",
+      "deepseek-v4-flash-0731",
+      "deepseek-v3.2",
+      "glm-5.3",
+      "glm-5.3-flash",
+      "glm-5.2",
+      "glm-5.1",
+      "glm-5"
+    ],
+    "name": "Baidu Qianfan",
+    "website": "https://cloud.baidu.com/doc/qianfan/s/Dmrabu8b6"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://tokenhub.tencentmaas.com",
+      "chat": "https://tokenhub.tencentmaas.com/v1",
+      "responses": "https://tokenhub.tencentmaas.com/v1"
+    },
+    "icon": "tencentcloud-color",
+    "id": "tencent-cloud",
+    "keysURL": "https://console.cloud.tencent.com/tokenhub/tokenplan",
+    "kind": "vendor",
+    "models": [
+      "tc-code-latest",
+      "glm-5.3",
+      "glm-5.3-flash",
+      "glm-5.2",
+      "glm-5.1",
+      "glm-5",
+      "kimi-k3",
+      "kimi-k2.7-code",
+      "deepseek-v4-pro-202606",
+      "deepseek-v4-flash-202605",
+      "minimax-m3",
+      "minimax-m2.7",
+      "hy4-preview",
+      "hy3"
+    ],
+    "name": "Tencent Cloud",
+    "website": "https://cloud.tencent.com/document/product/1823/130060"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://api.modelarts-maas.com/anthropic",
+      "chat": "https://api.modelarts-maas.com/openai/v1"
+    },
+    "icon": "huaweicloud-color",
+    "id": "huaweicloud",
+    "keysURL": "https://console.huaweicloud.com/modelarts/?#/model-studio/authmanage",
+    "kind": "vendor",
+    "models": [
+      "glm-5.3",
+      "glm-5.1",
+      "kimi-k2.6",
+      "deepseek-v4.1-flash",
+      "deepseek-v4-flash"
+    ],
+    "name": "Huawei Cloud MaaS",
+    "website": "https://support.huaweicloud.com/Token-plan-maas/tokenplan-maas-0001.html"
+  },
+  {
+    "endpoints": {
+      "chat": "https://ark.cn-beijing.volces.com/api/v3",
+      "responses": "https://ark.cn-beijing.volces.com/api/v3"
+    },
+    "icon": "volcengine-color",
+    "id": "volcengine",
+    "keysURL": "https://ark.volcengine.com/region:cn-beijing/apikey",
+    "kind": "vendor",
+    "models": [
+      "ark-code-latest",
+      "doubao-seed-evolving",
+      "doubao-seed-2.1-pro",
+      "doubao-seed-2.1-lite",
+      "doubao-seed-2.1-turbo",
+      "doubao-seed-2.0-mini",
+      "minimax-m3",
+      "glm-5.3",
+      "glm-5.3-flash",
+      "deepseek-v4.1-flash",
+      "deepseek-v4-flash",
+      "deepseek-v4-pro",
+      "kimi-k2.7-code",
+      "kimi-k2.8-preview",
+      "kimi-k3"
+    ],
+    "name": "Volcengine Ark",
+    "website": "https://www.volcengine.com/docs/82379/1925114"
+  },
+  {
+    "docsURL": "https://help.aliyun.com/en/model-studio/base-url",
+    "endpoints": {
+      "anthropic": "https://dashscope-intl.aliyuncs.com/apps/anthropic",
+      "chat": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
+    },
+    "icon": "qwen-color",
+    "id": "qwen",
+    "keysURL": "https://modelstudio.console.alibabacloud.com/?tab=playground#/api-key",
+    "kind": "vendor",
+    "models": [
+      "qwen3.8-max",
+      "qwen3.8-flash",
+      "qwen3.7-max",
+      "qwen3.7-plus",
+      "qwen3.6-flash",
+      "qwen3-max",
+      "qwen-plus",
+      "qwen-turbo",
+      "qwen3-coder-plus",
+      "qwq-plus"
+    ],
+    "name": "Alibaba Cloud Model Studio (Singapore)",
+    "website": "https://modelstudio.console.alibabacloud.com"
+  },
+  {
+    "docsURL": "https://help.aliyun.com/zh/model-studio/base-url",
+    "endpoints": {
+      "anthropic": "https://dashscope.aliyuncs.com/apps/anthropic",
+      "chat": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    },
+    "icon": "qwen-color",
+    "id": "qwen-cn",
+    "keysURL": "https://bailian.console.aliyun.com/?tab=model#/api-key",
+    "kind": "vendor",
+    "models": [
+      "qwen3.8-max",
+      "qwen3.8-flash",
+      "qwen3.7-max",
+      "qwen3.7-plus",
+      "qwen3.6-flash",
+      "qwen3-max",
+      "qwen-plus",
+      "qwen-turbo",
+      "qwen3-coder-plus",
+      "qwq-plus"
+    ],
+    "name": "Alibaba Cloud Bailian (Beijing)",
+    "website": "https://bailian.console.aliyun.com"
+  },
+  {
+    "docsURL": "https://platform.qianwenai.com/docs/api-reference/preparation/api-key",
+    "endpoints": {
+      "chat": "https://maas.qianwenaiapi.com/compatible-mode/v1"
+    },
+    "icon": "qwen-color",
+    "id": "qianwen-ai",
+    "keysURL": "https://platform.qianwenai.com/home/api-keys",
+    "kind": "vendor",
+    "models": [
+      "qwen3.8-max",
+      "qwen3.8-flash",
+      "qwen3.7-max",
+      "qwen3.7-plus",
+      "qwen3.6-flash",
+      "qwen3-max",
+      "qwen-plus",
+      "qwen-turbo",
+      "qwen3-coder-plus"
+    ],
+    "name": "Qianwen AI Platform",
+    "website": "https://platform.qianwenai.com"
+  },
+  {
+    "endpoints": {
+      "chat": "https://api.mistral.ai/v1"
+    },
+    "icon": "mistral-color",
+    "id": "mistral",
+    "keysURL": "https://console.mistral.ai/api-keys",
+    "kind": "vendor",
+    "models": [
+      "mistral-large-latest",
+      "codestral-latest",
+      "mistral-small-latest"
+    ],
+    "name": "Mistral",
+    "website": "https://console.mistral.ai"
+  },
+  {
+    "endpoints": {
+      "chat": "https://api.groq.com/openai/v1",
+      "responses": "https://api.groq.com/openai/v1"
+    },
+    "icon": "groq",
+    "id": "groq",
+    "keysURL": "https://console.groq.com/keys",
+    "kind": "vendor",
+    "models": [
+      "llama-3.3-70b-versatile",
+      "llama-3.1-8b-instant",
+      "qwen/qwen3-32b"
+    ],
+    "name": "Groq",
+    "website": "https://console.groq.com"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://ollama.com",
+      "chat": "https://ollama.com/v1"
+    },
+    "icon": "ollama",
+    "id": "ollama-cloud",
+    "keysURL": "https://ollama.com/settings/keys",
+    "kind": "vendor",
+    "name": "Ollama Cloud",
+    "website": "https://docs.ollama.com/cloud"
+  },
+  {
+    "endpoints": {
+      "chat": "https://inference-api.nousresearch.com/v1"
+    },
+    "icon": "nousresearch",
+    "id": "nous",
+    "keysURL": "https://portal.nousresearch.com",
+    "kind": "vendor",
+    "name": "Nous Portal",
+    "website": "https://portal.nousresearch.com"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://openrouter.ai/api",
+      "chat": "https://openrouter.ai/api/v1"
+    },
+    "icon": "openrouter",
+    "id": "openrouter",
+    "keysURL": "https://openrouter.ai/keys",
+    "kind": "relay",
+    "name": "OpenRouter",
+    "website": "https://openrouter.ai"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://opencode.ai/zen/go",
+      "chat": "https://opencode.ai/zen/go/v1",
+      "responses": "https://opencode.ai/zen/go/v1"
+    },
+    "icon": "opencode",
+    "id": "opencode-go",
+    "keysURL": "https://opencode.ai/auth",
+    "kind": "relay",
+    "name": "OpenCode Go",
+    "website": "https://opencode.ai/docs/go"
+  },
+  {
+    "endpoints": {
+      "chat": "https://api.cline.bot/api/v1"
+    },
+    "icon": "cline",
+    "id": "clinepass",
+    "keysURL": "https://app.cline.bot",
+    "kind": "relay",
+    "models": [
+      "cline-pass/glm-5.3",
+      "cline-pass/glm-5.3-flash",
+      "cline-pass/kimi-k3",
+      "cline-pass/deepseek-v4-pro",
+      "cline-pass/deepseek-v4.1-flash",
+      "cline-pass/mimo-v2.5",
+      "cline-pass/mimo-v2.5-pro",
+      "cline-pass/minimax-m3",
+      "cline-pass/muse-spark-1.3-contributor",
+      "cline-pass/qwen3.8-max",
+      "cline-pass/qwen3.7-max",
+      "cline-pass/qwen3.7-plus"
+    ],
+    "name": "ClinePass",
+    "website": "https://docs.cline.bot/getting-started/clinepass"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://opencode.ai/zen",
+      "chat": "https://opencode.ai/zen/v1",
+      "responses": "https://opencode.ai/zen/v1"
+    },
+    "icon": "opencode",
+    "id": "opencode-zen",
+    "keysURL": "https://opencode.ai/auth",
+    "kind": "relay",
+    "name": "OpenCode Zen",
+    "website": "https://opencode.ai/docs/zen"
+  },
+  {
+    "endpoints": {
+      "chat": "https://api.kilo.ai/api/openrouter"
+    },
+    "icon": "kilo",
+    "id": "kilo",
+    "keysURL": "https://app.kilo.ai",
+    "kind": "relay",
+    "name": "Kilo Gateway",
+    "website": "https://kilo.ai/docs/gateway"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://api.commandcode.ai/provider",
+      "chat": "https://api.commandcode.ai/provider/v1",
+      "responses": "https://api.commandcode.ai/provider/v1"
+    },
+    "icon": "commandcode",
+    "id": "commandcode",
+    "keysURL": "https://commandcode.ai/settings/keys",
+    "kind": "relay",
+    "name": "Command Code",
+    "website": "https://commandcode.ai/docs/provider"
+  },
+  {
+    "endpoints": {
+      "chat": "https://api.together.xyz/v1"
+    },
+    "icon": "together-color",
+    "id": "together",
+    "keysURL": "https://api.together.ai/settings/api-keys",
+    "kind": "relay",
+    "name": "Together AI",
+    "website": "https://api.together.ai"
+  },
+  {
+    "endpoints": {
+      "chat": "https://api.fireworks.ai/inference/v1"
+    },
+    "icon": "fireworks-color",
+    "id": "fireworks",
+    "keysURL": "https://app.fireworks.ai/settings/users/api-keys",
+    "kind": "relay",
+    "name": "Fireworks",
+    "website": "https://fireworks.ai"
+  },
+  {
+    "endpoints": {
+      "chat": "https://api.siliconflow.cn/v1"
+    },
+    "icon": "siliconcloud-color",
+    "id": "siliconflow",
+    "keysURL": "https://cloud.siliconflow.cn/account/ak",
+    "kind": "relay",
+    "name": "SiliconFlow",
+    "website": "https://cloud.siliconflow.cn"
+  },
+  {
+    "endpoints": {
+      "chat": "https://integrate.api.nvidia.com/v1"
+    },
+    "icon": "nvidia-color",
+    "id": "nvidia",
+    "keysURL": "https://build.nvidia.com/settings/api-keys",
+    "kind": "relay",
+    "name": "NVIDIA NIM",
+    "website": "https://build.nvidia.com"
+  },
+  {
+    "endpoints": {
+      "chat": "https://api-inference.modelscope.cn/v1",
+      "responses": "https://api-inference.modelscope.cn/v1"
+    },
+    "icon": "modelscope-color",
+    "id": "modelscope",
+    "keysURL": "https://modelscope.cn/my/myaccesstoken",
+    "kind": "relay",
+    "name": "ModelScope",
+    "website": "https://modelscope.cn/docs/model-service/API-Inference/intro"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://aihubmix.com",
+      "chat": "https://aihubmix.com/v1"
+    },
+    "icon": "aihubmix-color",
+    "id": "aihubmix",
+    "keysURL": "https://console.aihubmix.com/token",
+    "kind": "relay",
+    "name": "AiHubMix",
+    "website": "https://aihubmix.com"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://api.pipellm.ai",
+      "chat": "https://api.pipellm.ai/openai/v1",
+      "responses": "https://api.pipellm.ai/v1"
+    },
+    "icon": "pipellm-color",
+    "id": "pipellm",
+    "keysURL": "https://console.pipellm.ai",
+    "kind": "relay",
+    "name": "PipeLLM",
+    "website": "https://www.pipellm.ai"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://api.302.ai",
+      "chat": "https://api.302.ai/v1"
+    },
+    "icon": "ai302-color",
+    "id": "302ai",
+    "keysURL": "https://302.ai/api-keys/list",
+    "kind": "relay",
+    "name": "302.AI",
+    "website": "https://302.ai"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://open.cherryin.ai",
+      "chat": "https://open.cherryin.ai/v1",
+      "responses": "https://open.cherryin.ai/v1"
+    },
+    "icon": "cherryin-color",
+    "id": "cherryin",
+    "keysURL": "https://open.cherryin.ai/console/token",
+    "kind": "relay",
+    "name": "CherryIN",
+    "website": "https://open.cherryin.ai"
+  },
+  {
+    "endpoints": {
+      "anthropic": "https://app.yylx.io",
+      "chat": "https://app.yylx.io/v1"
+    },
+    "icon": "yylx",
+    "id": "yylx",
+    "keysURL": "https://app.yylx.io/keys",
+    "kind": "relay",
+    "name": "鱼鱼连线",
+    "website": "https://yylx.io"
+  },
+  {
+    "endpoints": {},
+    "id": "custom",
+    "kind": "custom",
+    "name": "Custom provider"
+  }
+]

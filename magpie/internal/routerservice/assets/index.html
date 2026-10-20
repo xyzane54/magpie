@@ -1,0 +1,231 @@
+<!doctype html>
+<!-- Trimmed from internal/gui/assets/index.html; shares its original styles.
+     Product startup deliberately omits Magpie's boot, plugin and app lifecycle. -->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>API-router</title>
+<link rel="icon" href="/icons/favicon.svg?v=router-r" type="image/svg+xml">
+<link rel="stylesheet" href="/app.css">
+<link rel="stylesheet" href="/context.css">
+<link rel="stylesheet" href="/plugins/routing/routing.css">
+<link rel="stylesheet" href="/router.css">
+</head>
+<body class="window web">
+<aside class="sidebar" id="side" hidden>
+  <div class="side-top"></div>
+  <div class="side-scroll"></div>
+  <div class="side-foot">
+    <button type="button" class="side-gw" id="sideGw"><i></i><span></span></button>
+  </div>
+  <!-- its edge, dragged to make it wider or narrower (app.js sideDrag) -->
+  <div class="side-edge" id="sideEdge" role="separator" aria-orientation="vertical" tabindex="0" style="--wails-draggable:no-drag"></div>
+</aside>
+<header class="top" style="--wails-draggable:drag">
+  <div class="brand">
+    <span class="logo router-logo" aria-hidden="true">R</span>
+    <span>API-router</span>
+  </div>
+  <h1 class="sr-only" id="pageTitle" data-t>Overview</h1>
+  <!-- the sidebar shown or the header's tabs, the reader's own (app.js
+       toggleSideNav); the left pane filled while the sidebar shows -->
+  <button type="button" class="icon side-toggle" id="sideToggle" hidden style="--wails-draggable:no-drag">
+    <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><rect class="st-pane" x="2.5" y="3.5" width="4" height="9" rx="1"/><g fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"><rect x="1.75" y="2.75" width="12.5" height="10.5" rx="2.25"/><path d="M6.75 2.75v10.5"/></g></svg>
+  </button>
+  <div class="crumb" id="crumb" aria-hidden="true" hidden></div>
+  <nav class="seg" id="nav" aria-label="Main navigation" data-ta style="--wails-draggable:no-drag">
+    <span class="nav-gl" data-t>Work</span>
+    <button data-view="agents"><svg class="nav-ic" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4-4 4M10 14h6"/></g></svg><span data-t>Agents</span></button>
+    <span class="nav-gl" data-t>Models</span>
+    <button data-view="providers"><svg class="nav-ic" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="10" r="3"/><path d="M10 10h7M14 10v3M16.5 10v2"/></g></svg><span data-t>Providers</span></button>
+    <button data-view="routing"><svg class="nav-ic" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h5l4-5h5M8 10l4 5h5M14.5 3l2.5 2-2.5 2M14.5 13l2.5 2-2.5 2"/></g></svg><span data-t>Routing</span></button>
+    <button data-view="gateway"><svg class="nav-ic" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="14" height="5" rx="1.5"/><rect x="3" y="11" width="14" height="5" rx="1.5"/><path d="M6 6.5h.01M6 13.5h.01"/></g></svg><span data-t>Gateway</span></button>
+    <button data-view="local-model"><svg class="nav-ic" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="14" height="14" rx="3"/><path d="M7 7h6v6H7z"/></g></svg><span data-t>Local model</span></button>
+    <span class="nav-gl" data-t>Insights</span>
+    <button data-view="usage"><svg class="nav-ic" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16V9M8 16V5M12 16v-5M16 16V7"/></g></svg><span data-t>Usage</span></button>
+  </nav>
+  <div class="actions">
+    <button type="button" class="text tutorial-entry" id="tutorialOpen" data-t style="--wails-draggable:no-drag">Usage guide</button>
+    <button class="icon" id="sync" title="Refresh now" data-tt>
+      <svg viewBox="0 0 16 16" width="14" height="14"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2v3h-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="icon" id="prefs" title="Settings" data-tt>
+      <svg viewBox="0 0 24 24" width="14" height="14"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></g></svg>
+    <span class="side-l" data-t>Settings</span></button>
+  </div>
+</header>
+
+
+<main class="view" id="view-agents" hidden>
+  <div class="row-head router-label"><span class="label" data-t>Agents</span></div>
+  <div class="list" id="agents"></div>
+  <p class="usage-note router-note" data-t>Once the switch is turned on, models configured in api-router will appear as the api-router provider in the agent's model list.</p>
+  <p class="usage-note router-note" id="appStatus" role="status"></p>
+</main>
+<main class="view" id="view-providers" hidden>
+  <div class="row-head router-label"><span class="label" data-t>Providers</span></div>
+  <div class="list" id="providers"></div>
+  <div id="localProvidersSection" hidden>
+    <div class="row-head router-label"><span class="label" data-t>Local on-device models</span></div>
+    <div class="list" id="localProviders"></div>
+  </div>
+  <p class="usage-note router-note" id="providerStatus" role="status"></p>
+  <div class="after-list"><button class="text" id="addProvider" data-t>＋ Add provider</button></div>
+  <section class="sheet" id="addSheet"><div id="providerPresets"></div></section>
+</main>
+<main class="view" id="view-local-model" hidden>
+  <div class="row-head"><span class="label" data-t>Local model</span></div>
+  <p class="usage-note router-note" id="localModelNote"></p>
+  <div id="localModelContent"></div>
+  <p class="usage-note router-note" id="localModelLifecycle"></p>
+  <p class="editor-error" id="localModelError" role="status" aria-live="polite"></p>
+  <p class="usage-note router-note" id="redactionSetup" hidden></p>
+  <section id="redactionPanel" aria-labelledby="redactionTitle" hidden>
+    <div class="row-head"><span class="label" id="redactionTitle" data-t>Redaction intent</span></div>
+    <p class="usage-note router-note" id="redactionScope"></p>
+    <div class="list prefs" id="redactionContent"></div>
+    <div class="after-list"><button class="text" id="redactionDisableAll" type="button" data-t>Disable all redaction intents</button></div>
+  </section>
+  <p class="usage-note router-note" id="redactionStatus" role="status" aria-live="polite" hidden></p>
+</main>
+<main class="view" id="view-routing" hidden>
+  <div class="row-head router-label rt-view-head">
+    <span class="label" data-t>Routing</span>
+    <span class="grow"></span>
+    <button type="button" class="text" id="refreshRoutingGroupsBtn" data-t>Refresh</button>
+    <button type="button" class="text primary" id="newRoutingGroupBtn" data-t>＋ New routing group</button>
+  </div>
+  <p class="usage-note router-note" id="routingIntroNote" data-t>Orchestrate local on-device models and cloud provider models into unified group/&lt;id&gt; virtual models for external agents and clients.</p>
+  <p class="usage-note router-note" id="routingGroupStatus" role="status" aria-live="polite" hidden></p>
+  <div id="routingGroups">
+    <section id="customRoutingGroupsSection">
+      <div class="row-head router-label"><span class="label" data-t>Custom routing groups</span></div>
+      <div class="list" id="customRoutingGroupsList"></div>
+    </section>
+    <section id="autoRoutingGroupsSection" hidden>
+      <div class="row-head router-label"><span class="label" data-t>Auto-discovered same-name groups</span></div>
+      <p class="usage-note router-note" data-t>Models shared across multiple providers or local runtime are automatically grouped. Pin or edit to customize strategy.</p>
+      <div class="list" id="autoRoutingGroupsList"></div>
+    </section>
+  </div>
+  <div class="modal" id="routingGroupModal" hidden role="dialog" aria-modal="true" aria-labelledby="routingGroupModalTitle">
+   <div class="dialog"><form class="editor framed rt-gedit rt-group-editor" id="routingGroupForm">
+    <div class="ehead">
+     <b id="routingGroupModalTitle" data-t>New group</b>
+     <code class="rt-call-badge" id="rgCallBadge" hidden>group/new-group</code>
+     <span class="grow"></span>
+     <button type="button" class="text danger" id="rgDeleteBtn" hidden data-t>Delete</button>
+     <button type="button" class="text" id="rgCancelBtn" data-t>Cancel</button>
+     <button type="submit" class="text primary" id="rgSaveBtn" data-t>Save</button>
+    </div>
+    <div class="editor-error" id="rgError" role="status" aria-live="polite"></div>
+    <div class="ebody" id="rgEditorBody"></div>
+   </form></div>
+   <div class="pop model-picker" id="rgModelPicker" hidden></div>
+  </div>
+</main>
+<main class="view router-service" id="view-gateway" hidden>
+  <div class="row-head router-label"><span class="label" data-t>Gateway</span></div>
+  <div class="list prefs">
+    <div class="row pref"><div class="who"><div class="name" data-t>Service</div><div class="sub" data-t>Local access only</div></div><span class="router-state" id="service"></span></div>
+    <div class="row pref"><div class="who"><div class="name" data-t>Listen address</div></div><div class="val"><code id="address"></code></div></div>
+    <div class="row pref"><div class="who"><div class="name" data-t>Model requests</div></div><span class="router-state" id="model"></span></div>
+    <div class="row pref"><div class="who"><div class="name" data-t>Local model</div></div><span class="router-state" id="runtime"></span></div>
+  </div>
+  <p class="usage-note router-note" data-t>Cloud requests are connected. Explicit 1.7B or 4B local routing and execution become available after enable, install and capability checks; redaction is separate.</p>
+</main>
+<main class="view" id="view-usage" hidden>
+  <div class="usage-head">
+    <div class="segs" id="usageTab" role="tablist" aria-label="Usage" data-ta>
+      <button class="opt" id="usageTab-usage" role="tab" data-tab="usage" data-t>Overview</button>
+      <button class="opt" id="usageTab-requests" role="tab" data-tab="requests" data-t>Requests</button>
+    </div>
+    <span class="sess-pick" id="period"></span>
+    <span class="grow"></span>
+    <span class="usage-refresh"><button class="icon" id="usageReload" aria-label="Refresh now" data-tt="Refresh now"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3"/></svg></button><span class="sess-pick" data-t>Manual refresh</span></span>
+  </div>
+  <section class="tutorial-resume" id="tutorialResume" hidden><div><strong data-t>Getting started</strong><p id="tutorialSummary"></p></div><button type="button" class="text" id="tutorialContinue" data-t>Continue the guide</button></section>
+  <div class="usage-pane" id="usagePane" hidden><div id="requestSummary"></div></div>
+  <div class="usage-pane" id="ledgerPane" hidden>
+    <p class="usage-note router-note" id="requestScope"></p>
+    <form class="request-filters" id="requestFilters">
+      <label><span id="requestAppLabel"></span><input id="requestApp" maxlength="48" autocomplete="off"></label>
+      <div id="requestStatuses" class="request-choices"></div>
+      <div id="requestOperations" class="request-choices"></div>
+      <div id="requestDestinations" class="request-choices"></div>
+      <button type="submit" class="btn" id="requestApply"></button>
+    </form>
+    <div id="requestRecords"></div>
+  </div>
+</main>
+<main class="view router-service" id="view-settings" hidden>
+  <div class="row-head set-head"><div class="warm-tabs set-tabs" id="setTabs" role="tablist" aria-label="Settings">
+    <button role="tab" data-set="general" id="setTab-general" data-t>General</button><button role="tab" data-set="about" id="setTab-about" data-t>About</button>
+  </div></div>
+  <section class="set-page" id="setPage-general">
+    <div class="list prefs">
+      <div class="row pref"><div class="who"><div class="name" data-t>Appearance</div></div><div class="segs" id="themeSegs"></div></div>
+      <div class="row pref"><div class="who"><div class="name" data-t>Language</div></div><div class="segs router-language" id="langSegs"></div></div>
+      <div class="row pref"><div class="who"><div class="name" data-t>Getting started</div></div><button type="button" class="text" id="tutorialSettings" data-t>Continue the guide</button></div>
+    </div>
+    <section id="serviceControl"></section>
+  </section>
+  <section class="set-page" id="setPage-about" hidden>
+    <div class="list prefs" id="details">
+      <div class="row pref"><div class="who"><div class="name">API-router</div></div><span class="router-state" data-t>Local model router</span></div>
+      <div class="row pref"><div class="who"><div class="name" data-t>Version</div></div><div class="val"><code id="version">—</code></div></div>
+      <div class="row pref"><div class="who"><div class="name" data-t>Started at</div></div><div class="val"><code id="started">—</code></div></div>
+    </div>
+  </section>
+</main>
+<footer class="foot"><span id="status" class="status" role="status" aria-live="polite"></span><span class="grow"></span></footer>
+<div class="modal tutorial-modal" id="tutorialModal" hidden role="dialog" aria-modal="true" aria-labelledby="tutorialTitle" aria-describedby="tutorialChapter">
+  <div class="tutorial-dialog">
+    <aside class="tutorial-rail">
+      <span class="tutorial-eyebrow" data-t>Getting started</span>
+      <p class="tutorial-rail-title" data-t>Start here</p>
+      <nav id="tutorialSteps" aria-label="Guide chapters"></nav>
+      <p class="tutorial-rail-note" data-t>You can skip now and return from Usage guide.</p>
+    </aside>
+    <div class="tutorial-body">
+      <header class="tutorial-top"><span id="tutorialChapter"></span><button type="button" class="text" id="tutorialClose" aria-label="Close" data-tt="Close">×</button></header>
+      <div class="tutorial-reading"><h2 id="tutorialTitle"></h2><article id="tutorialContent" aria-live="polite"></article><button type="button" class="text" id="tutorialGo"></button></div>
+      <footer class="tutorial-footer">
+        <span id="tutorialProgress" class="tutorial-progress"></span>
+        <div class="tutorial-actions"><button type="button" class="text" id="tutorialDismiss" data-t>Skip for now</button><button type="button" class="text" id="tutorialBack" data-t>Previous</button><button type="button" class="text primary" id="tutorialNext" data-t>Next</button></div>
+      </footer>
+    </div>
+  </div>
+</div>
+<div class="modal" id="providerModal" hidden role="dialog" aria-modal="true" aria-labelledby="providerTitle">
+ <div class="dialog"><form class="editor framed provider-editor" id="providerForm">
+  <div class="ehead"><span id="providerIcon" class="ic"></span><b id="providerTitle"></b><span class="grow"></span><a class="text" id="providerWebsite" target="_blank" rel="noopener noreferrer" hidden></a><button type="button" class="text" id="providerClose" aria-label="Close" data-tt="Close">×</button></div>
+  <div class="ebody">
+   <label for="cloudName" data-t>Name</label><input id="cloudName" type="text" required maxlength="120" autocomplete="off">
+   <label for="cloudBase" data-t>API address</label><div><input id="cloudBase" type="url" required autocomplete="off" placeholder="https://api.example.com/v1"><div class="hint" data-t>Base address, without /chat/completions or /messages.</div><div class="hint" id="cloudPlatformHint"></div><a class="text" id="cloudDocs" target="_blank" rel="noopener noreferrer" hidden data-t>API documentation</a></div>
+   <label data-t>Protocol</label><div class="segs" id="cloudProtocol"></div>
+   <label for="cloudKey" data-t>API key</label><div><div class="pair"><input id="cloudKey" type="password" autocomplete="new-password"><span class="side"><button type="button" class="text" id="cloudKeyShow" data-t>Show</button><a class="text" id="cloudGetKey" target="_blank" rel="noopener noreferrer" hidden data-t>Get a key</a></span></div><div class="hint" data-t>Saved locally in a separate credential file. Leave blank to keep the existing key.</div></div>
+   <details class="more" id="cloudAdvanced"><summary data-t>Advanced settings</summary><div class="inner">
+    <label for="cloudHeaders" data-t>Request headers</label><div class="headers"><textarea class="json" id="cloudHeaders" rows="3" spellcheck="false" placeholder='{"X-Project": "project-id"}'></textarea><div class="hint" data-t>JSON object of header names and string values. Leave blank to keep saved headers; {} clears them.</div><div class="hint" id="cloudHeaderHint"></div></div>
+    <label for="cloudExtraBody" data-t>Extra body</label><div class="extra-body"><textarea class="json" id="cloudExtraBody" rows="4" spellcheck="false" placeholder='{"prompt_cache_key": "${sessionId}"}'></textarea><div class="hint" data-t>JSON object. Leave blank to keep saved options; {} clears them. Model, stream, conversation and tools cannot be overridden.</div></div>
+    <label data-t>Proxy</label><div><div class="proxy-row"><div class="segs" id="cloudProxyMode"></div></div><input id="cloudProxyURL" type="url" class="proxy-url" autocomplete="off" placeholder="http://127.0.0.1:7890" hidden><div class="hint" data-t>System uses environment proxy settings. Leave the custom URL blank to keep the saved proxy.</div></div>
+   </div></details>
+  </div>
+  <div class="editor-error" id="providerError" role="status" aria-live="polite"></div>
+  <div class="bar"><button class="text danger" id="providerDelete" type="button" hidden data-t>Delete</button><span class="grow"></span><button class="text" type="button" id="providerCancel" data-t>Cancel</button><button class="text primary" id="providerSave" type="submit" data-t>Save</button></div>
+ </form></div>
+</div>
+<script src="/i18n.js"></script>
+<script src="/app.js"></script>
+<script src="/provider.js"></script>
+<script src="/profiles.js"></script>
+<script src="/loomy.js"></script>
+<script src="/observations.js"></script>
+<script src="/local-model.js"></script>
+<script src="/redaction.js"></script>
+<script src="/service-control.js"></script>
+<script src="/tutorial.js"></script>
+<script src="/routing-groups.js"></script>
+<script src="/routing-groups-editor.js"></script>
+</body></html>

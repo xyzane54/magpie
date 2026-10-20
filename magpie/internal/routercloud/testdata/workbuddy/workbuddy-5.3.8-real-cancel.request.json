@@ -1,0 +1,28 @@
+{
+  "model": "qwen3.8-max-0902",
+  "messages": [
+    {
+      "content": "<redacted text>",
+      "role": "system"
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "<redacted text>"
+        },
+        {
+          "type": "text",
+          "text": "<redacted text>"
+        }
+      ],
+      "agent": "<redacted text>"
+    }
+  ],
+  "temperature": 1,
+  "stream": true,
+  "stream_options": {
+    "include_usage": true
+  }
+}

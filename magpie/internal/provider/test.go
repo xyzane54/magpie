@@ -1,0 +1,623 @@
+package provider
+
+import (
+	"github.com/yetone/magpie/internal/cloudcodec"
+
+	"bufio"
+	"bytes"
+
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+
+	"slices"
+	"strings"
+	"sync"
+	"time"
+
+	"github.com/yetone/magpie/internal/catalog"
+)
+
+// Result is what a probe of one endpoint came back with.
+type Result struct {
+	Account  string   `json:"account,omitempty"`
+	Protocol Protocol `json:"protocol"`
+	OK       bool     `json:"ok"`
+	Status   int      `json:"status,omitempty"`
+	Millis   int64    `json:"ms"`
+	Model    string   `json:"model,omitempty"`
+	Error    string   `json:"error,omitempty"`
+}
+
+// Test sends the smallest possible request to each endpoint the vendor
+// serves, signed with a key made for it and asking for a model that key
+// sees, and reports what came back.
+func (p Provider) Test(ctx context.Context) []Result {
+	ctx = p.Via(ctx)
+	if p.DecideOnly() {
+		return p.testDecide(ctx)
+	}
+	_, listErr := p.Fetch(ctx)
+	if client := testClient(ctx); client != "" {
+		// the one endpoint that agent's requests go to
+		proto := clientProto(client, p.Speaks())
+		q, ok := p.keyFor(proto)
+		model := p.testModel(q, proto)
+		if why := p.TestsAs(client); why != "" {
+			return []Result{{Protocol: proto, Model: model, Error: why}}
+		}
+		if !ok {
+			return []Result{{Protocol: proto, Model: model, Error: "no key is on for this endpoint"}}
+		}
+		url, body := tiny(q, proto, UpstreamName(p, model))
+		return []Result{probe(ctx, q, proto, url, q.tested(asClient(client, proto, body)), model, testWait)}
+	}
+	if p.isClaudeAccount() {
+		return []Result{p.testClaude(ctx, p.testModel(p, Anthropic))}
+	}
+	if p.testsTranslated() {
+		return []Result{p.testTranslated(ctx, p.testModel(p, CodeAssist))}
+	}
+	var out []Result
+	for _, proto := range p.Speaks() {
+		q, ok := p.keyFor(proto)
+		model := p.testModel(q, proto)
+		if !ok {
+			out = append(out, Result{Protocol: proto, Model: model, Error: "no key is on for this endpoint"})
+			continue
+		}
+		url, body := tiny(q, proto, UpstreamName(p, model))
+		out = append(out, probe(ctx, q, proto, url, q.tested(body), model, testWait))
+	}
+	if p.IsRemoteMagpie() {
+		// The model list already checked its key and named its decisions.
+		if model := p.Jev(); listErr == nil && model != "" {
+			out = append(out, Result{Protocol: "decide", Model: model, OK: true, Status: http.StatusOK})
+		}
+	} else if p.Decides() {
+		out = append(out, p.testDecide(ctx)...)
+	}
+	return out
+}
+
+// tiny is the smallest request for model on proto's endpoint, streamed
+// to a backend that only streams.
+func tiny(q Provider, proto Protocol, model string) (url, body string) {
+	url, body = tinyBody(q, proto, model)
+	if q.Account != nil && q.Account.Stream && body != "" {
+		body = strings.TrimSuffix(body, "}") + `,"stream":true}`
+	}
+	if q.OpenCodeFree(model) && body != "" {
+		url, body = OpenCodeFreeURL(url), zenFreeProbe(proto, body)
+	}
+	if q.IsCline() && body != "" {
+		body = clineProbe(body)
+	}
+	return url, body
+}
+
+// clineProbe is the smallest request asked as Cline's own clients ask:
+// streamed, with room for the model to think before it answers. Cline's
+// free models reason first, and asked for 16 tokens without a stream the
+// Cline API answered 500 "empty response content" (ARNO on Discord) while
+// an agent's request to the same model was answered. probe stops reading
+// at the model's first word, so the room is not spent.
+func clineProbe(body string) string {
+	var m map[string]any
+	if json.Unmarshal([]byte(body), &m) != nil {
+		return body
+	}
+	m["stream"] = true
+	for _, k := range []string{"max_tokens", "max_completion_tokens", "max_output_tokens"} {
+		if _, ok := m[k]; ok {
+			m[k] = 1024
+		}
+	}
+	b, err := json.Marshal(m)
+	if err != nil {
+		return body
+	}
+	return string(b)
+}
+
+// ModelTest says why p's models can't each be sent a test request ("" when
+// they can): "decide" for a decision API whose models can't each be sent
+// a System One question (AsksDecideModels), whose endpoint Test asks it
+// for them; "own-api" for a sign-in reached
+// through its agent's own API (Cursor, Devin, Kiro, Zed, Qoder, a Google
+// sign-in), which the gateway translates every request for, so a probe
+// has no endpoint to go to. A Google sign-in's are asked through the
+// gateway's translator (testsTranslated). Vertex AI's generateContent is
+// asked as it is.
+func (p Provider) ModelTest() string {
+	if p.DecideOnly() {
+		if p.AsksDecideModels() {
+			return ""
+		}
+		return "decide"
+	}
+	if p.isClaudeAccount() || p.testsTranslated() || p.IsVertex() {
+		return ""
+	}
+	for _, pr := range p.Speaks() {
+		if pr == Chat || pr == Responses || pr == Anthropic || pr == Gemini && p.Gemini != "" {
+			return ""
+		}
+	}
+	return "own-api"
+}
+
+// AsksDecideModels reports whether each of p's decision models can be
+// sent a System One question of its own (TestModels): where the API is
+// System One's, TypeSafe's or a gateway's that serves it as it is
+// (Vercel's TypeSafe API, OpenRouter's), or Workers AI's, which DecideAsk
+// wraps it for (ARNO on Discord: cloudflare-jev's models couldn't be
+// tested from their right-click); not Vercel's evaluation models, which
+// name the model in headers of their own.
+func (p Provider) AsksDecideModels() bool {
+	v := p.DecideVia()
+	return p.Decides() && (v == ViaSystemOne || v == ViaVercel || v == ViaCloudflare)
+}
+
+func tinyBody(q Provider, proto Protocol, model string) (url, body string) {
+	switch proto {
+	case Chat:
+		if q.IsBedrock() || q.IsAzure() {
+			return q.Chat + "/chat/completions", fmt.Sprintf(`{"model":%q,"messages":[{"role":"user","content":"hi"}],"max_completion_tokens":16}`, model)
+		}
+		return q.Chat + "/chat/completions", fmt.Sprintf(`{"model":%q,"messages":[{"role":"user","content":"hi"}],"max_tokens":16}`, model)
+	case Responses:
+		return q.Responses + "/responses", fmt.Sprintf(`{"model":%q,"input":[{"type":"message","role":"user","content":[{"type":"input_text","text":"hi"}]}],"max_output_tokens":16}`, model)
+	case Anthropic:
+		return q.Anthropic + "/v1/messages", fmt.Sprintf(`{"model":%q,"max_tokens":16,"messages":[{"role":"user","content":"hi"}]}`, model)
+	case Gemini:
+		if q.IsVertex() {
+			return vertexTest(q, model)
+		}
+		if q.FactoryGemini() {
+			// Factory's generate route. droid sends no stream field.
+			return q.Base(Gemini) + "/generate", fmt.Sprintf(`{"model":%q,"contents":[{"role":"user","parts":[{"text":"hi"}]}]}`, model)
+		}
+		return q.Gemini + GeminiPath(model, false), `{"contents":[{"role":"user","parts":[{"text":"hi"}]}],"generationConfig":{"maxOutputTokens":16}}`
+	}
+	return "", ""
+}
+
+// testWait is how long a probe waits for an answer; drawWait, for a
+// picture, which takes an images API longer than a word takes chat.
+const (
+	testWait = 20 * time.Second
+	drawWait = 2 * time.Minute
+)
+
+// drawsOnImages is whether model is asked on p's images API, as the
+// gateway draws with it there: chat would be turned away, or answered in
+// no shape a chat test knows. OpenRouter's image-only models use its /images
+// endpoint; its chat image models still use chat completions.
+func (p Provider) drawsOnImages(model string) bool {
+	return p.Account == nil && p.Chat != "" && catalog.ImagesAPI(model)
+}
+
+// tinyDrawing is the smallest images request for model: one picture of
+// next to nothing, at the lowest quality gpt-image offers, at the size
+// the vendor draws by default (the smallest one takes differs by model).
+func tinyDrawing(q Provider, model string) (url, body string) {
+	req := map[string]any{"model": model, "prompt": "a dot", "n": 1}
+	if m := strings.ToLower(model); strings.Contains(m, "gpt-image") || strings.Contains(m, "chatgpt-image") {
+		req["quality"] = "low"
+	}
+	b, _ := json.Marshal(req)
+	path := "/images/generations"
+	if HostOf(q.Chat) == "openrouter.ai" {
+		path = "/images"
+	}
+	return strings.TrimRight(q.Chat, "/") + path, string(b)
+}
+
+// TestModels sends each of models the smallest request, a few at a time,
+// on the endpoint it's served on and with a key that sees it: whether each
+// answers, not only whether the vendor does. Results are in models' order.
+func (p Provider) TestModels(ctx context.Context, models []string) []Result {
+	ctx = p.Via(ctx)
+	out := make([]Result, len(models))
+	sem := make(chan struct{}, 4)
+	var wg sync.WaitGroup
+	for i, model := range models {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+			out[i] = p.testOne(ctx, model)
+		}()
+	}
+	wg.Wait()
+	return out
+}
+
+func (p Provider) testOne(ctx context.Context, model string) Result {
+	if pat, off := ModelDisabled(p.ID, model); off {
+		// the user disabled it (#1867): not even a test reaches it
+		return Result{Model: model, Error: fmt.Sprintf("model %s/%s is disabled in magpie (it matches %q in Settings › Models › Disabled models)", p.ID, model, pat)}
+	}
+	if p.DecidesModel(model) && p.AsksDecideModels() {
+		// a decision model is sent the smallest System One question, a
+		// yes-or-no (ARNO on Discord: a System One model typed in by hand
+		// couldn't be tested from its right-click)
+		t0 := time.Now()
+		r := Result{Protocol: "decide", Model: model}
+		err := p.AskSystemOne(ctx, model)
+		r.Millis = time.Since(t0).Milliseconds()
+		if err != nil {
+			r.Error = err.Error()
+			return r
+		}
+		r.OK, r.Status = true, http.StatusOK
+		return r
+	}
+	client := testClient(ctx)
+	if why := p.TestsAs(client); why != "" {
+		return Result{Protocol: clientProto(client, p.Speaks()), Model: model, Error: why}
+	}
+	if p.isClaudeAccount() {
+		return p.testClaude(ctx, model)
+	}
+	if p.testsTranslated() {
+		return p.testTranslated(ctx, model)
+	}
+	var protos []Protocol
+	for _, pr := range p.Speaks() {
+		if pr == Chat || pr == Responses || pr == Anthropic || pr == Gemini {
+			protos = append(protos, pr)
+		}
+	}
+	if len(protos) == 0 || p.DecidesModel(model) {
+		return Result{Model: model, Error: "this provider can't be sent a test request"}
+	}
+	// the endpoint the vendor's list says serves it, else Anthropic's for a
+	// Claude model, else the one it prefers; an image model draws on the
+	// chat endpoint's images API
+	proto := protos[0]
+	draws := client == "" && p.drawsOnImages(model) && slices.Contains(protos, Chat)
+	if client != "" {
+		// on the API that agent's requests go to (TestAs)
+		proto = clientProto(client, protos)
+	} else if draws {
+		proto = Chat
+	} else if apis := p.APIs(model); apis != nil {
+		if i := slices.IndexFunc(protos, func(pr Protocol) bool { return slices.Contains(apis, pr) }); i >= 0 {
+			proto = protos[i]
+		}
+	} else if isClaude(model) && slices.Contains(protos, Anthropic) {
+		proto = Anthropic
+	}
+	// a key made for that endpoint, else one made for any, that sees it
+	q, ok := p, true
+	if keys := p.KeysOn(); len(keys) > 0 {
+		ok = false
+	pick:
+		for _, want := range []Protocol{proto, ""} {
+			for _, k := range keys {
+				if k.Protocol == want && p.Serves(k, model) {
+					q, ok = p.WithKey(k), true
+					break pick
+				}
+			}
+		}
+	}
+	if !ok {
+		return Result{Protocol: proto, Model: model, Error: "no key that's on sees this model"}
+	}
+	if draws {
+		// as the gateway does, one the images API doesn't serve is tried
+		// in chat, and only its answer said when that fails too. Both go
+		// out under the name magpie knows the model by: the gateway builds
+		// those bodies itself and an upstream name is never written into
+		// one, so asking for the model's own here is what tests a drawing
+		// the way a real one is made — a name the vendor serves drawings
+		// by is not one magpie sends them as
+		url, body := tinyDrawing(q, model)
+		r := probe(ctx, q, proto, url, []byte(body), model, drawWait)
+		if !r.OK && ((r.Status == 404 || r.Status == 405) && HostOf(q.Chat) != "openrouter.ai" || r.Status == 400 && catalog.PointsToChat(r.Error)) {
+			url, body := tiny(q, proto, model)
+			if c := probe(ctx, q, proto, url, q.tested(body), model, testWait); c.OK {
+				return c
+			}
+		}
+		return r
+	}
+	url, body := tiny(q, proto, UpstreamName(p, model))
+	if client != "" {
+		body = asClient(client, proto, body)
+	}
+	r := probe(ctx, q, proto, url, q.tested(body), model, testWait)
+	if !r.OK && client == "" && proto == Chat && r.Status == 400 && catalog.DrawsID(model) && catalog.PointsToImagesAPI(r.Error) {
+		// an image model its name doesn't place on the images API
+		// (agnes-image-2.5-flash, #1837), which the vendor turns away in
+		// chat naming that API: the gateway draws with it there, so it is
+		// tested there
+		url, body := tinyDrawing(q, model)
+		if d := probe(ctx, q, proto, url, []byte(body), model, drawWait); d.OK {
+			return d
+		}
+	}
+	return r
+}
+
+// keyFor is p using the first key on that works with proto: one made for
+// it, else one made for any. A provider without keys is left as it is.
+func (p Provider) keyFor(proto Protocol) (Provider, bool) {
+	keys := p.KeysOn()
+	if len(keys) == 0 {
+		return p, true
+	}
+	for _, want := range []Protocol{proto, ""} {
+		for _, k := range keys {
+			if k.Protocol == want {
+				return p.WithKey(k), true
+			}
+		}
+	}
+	return p, false
+}
+
+// testModel is the model a probe of proto's endpoint asks for: the first
+// exposed one q's key sees, else the first it sees at all — preferring a
+// Claude model on the Anthropic endpoint, and one that chats to one that
+// draws on an images API.
+func (p Provider) testModel(q Provider, proto Protocol) string {
+	k := q.first()
+	off := disabledNow() // a model the user disabled is never asked (#1867)
+	var pools [][]catalog.Model
+	if ms := p.Exposed(); len(ms) > 0 {
+		pools = append(pools, ms)
+	}
+	pools = append(pools, p.Available())
+	for _, want := range []func(string) bool{
+		func(id string) bool {
+			if p.drawsOnImages(id) {
+				return false
+			}
+			if apis := p.APIs(id); apis != nil {
+				return slices.Contains(apis, proto)
+			}
+			return (proto != Anthropic || isClaude(id)) && !p.NamedOnlyOn(proto)
+		},
+		func(string) bool { return true },
+	} {
+		for _, pool := range pools {
+			for _, m := range pool {
+				if !p.DecidesModel(m.ID) && !off(p.ID, m.ID) && want(m.ID) && (k.Key == "" || p.Serves(k, m.ID)) {
+					return m.ID
+				}
+			}
+		}
+	}
+	return ""
+}
+
+func isClaude(id string) bool {
+	id = strings.ToLower(id)
+	if i := strings.LastIndex(id, "/"); i >= 0 {
+		id = id[i+1:]
+	}
+	return strings.HasPrefix(id, "claude")
+}
+
+// AuthHeaders is how a request to the vendor proves who it is. Anthropic's
+// own API wants x-api-key alone, and so does Bedrock's, which turns away a
+// request with both (#176); other compatible vendors take either, so both.
+// Azure OpenAI takes a key in api-key alone: a Bearer there is an Entra ID
+// token, and the key sent as one is turned away.
+func AuthHeaders(p Provider, proto Protocol) map[string]string {
+	// Vertex AI's is the Google token Sign sets, which a key would replace
+	if p.Key == "" || p.IsVertex() {
+		return map[string]string{}
+	}
+	if p.IsAzure() {
+		if proto == Anthropic {
+			return map[string]string{"x-api-key": p.Key}
+		}
+		return map[string]string{"api-key": p.Key}
+	}
+	if proto == Gemini && !p.FactoryGemini() {
+		// Google's Gemini API takes an API key here, and turns one away as
+		// a Bearer token ("Expected OAuth 2 access token"); relays that
+		// answer as it does read it here too
+		return map[string]string{"x-goog-api-key": p.Key}
+	}
+	if proto == Anthropic {
+		if strings.HasSuffix(p.Host(), "anthropic.com") || p.IsBedrock() {
+			return map[string]string{"x-api-key": p.Key}
+		}
+		// a vendor that takes one alone (AuthHeader, RetryOneAuth)
+		switch p.AuthHeader {
+		case AuthXAPIKey:
+			return map[string]string{"x-api-key": p.Key}
+		case AuthBearer:
+			return map[string]string{"Authorization": "Bearer " + p.Key}
+		}
+		return map[string]string{"x-api-key": p.Key, "Authorization": "Bearer " + p.Key}
+	}
+	return map[string]string{"Authorization": "Bearer " + p.Key}
+}
+
+func probe(ctx context.Context, p Provider, proto Protocol, url string, body []byte, model string, wait time.Duration) Result {
+	r := Result{Protocol: proto, Model: model}
+	if model == "" {
+		r.Error = "no model to try: expose one, or refresh the model list"
+		return r
+	}
+	ctx, cancel := context.WithTimeout(ctx, wait)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
+	if err != nil {
+		r.Error = err.Error()
+		return r
+	}
+	req.Header.Set("Content-Type", "application/json")
+	if proto == Anthropic {
+		req.Header.Set("anthropic-version", "2023-06-01")
+	}
+	if p.IsOpenCode() {
+		OpenCodeClient(req.Header, "")
+	}
+	if p.IsCline() {
+		ClineClient(req.Header)
+	}
+	if p.IsKilo() {
+		KiloClient(req.Header, p.Key, "")
+	}
+	if client := testClient(ctx); client != "" {
+		clientHeaders(client, req.Header)
+	}
+	if err := p.Sign(ctx, req, proto, body); err != nil {
+		r.Error = err.Error()
+		return r
+	}
+	start := time.Now()
+	res, err := p.Do(http.DefaultClient, req)
+	if err == nil && proto == Anthropic {
+		// a vendor that takes one of the two key headers alone
+		res, err = RetryOneAuth(p, req, res, func(r *http.Request) (*http.Response, error) { return p.Do(http.DefaultClient, r) })
+	}
+	if err == nil && proto == Chat {
+		// a GLM Coding Plan's key at Zhipu's pay-as-you-go endpoint
+		res, err = RetryZhipuCoding(p, req, res, func(r *http.Request) (*http.Response, error) { return p.Do(http.DefaultClient, r) })
+	}
+	r.Millis = time.Since(start).Milliseconds()
+	if err != nil {
+		r.Error = strings.TrimPrefix(err.Error(), "Post \""+url+"\": ")
+		return r
+	}
+	defer res.Body.Close()
+	r.Status = res.StatusCode
+	if res.StatusCode >= 200 && res.StatusCode < 300 {
+		// a stream is answered 200 before the model has said anything, and
+		// can still fail in it: read on to its first word or its error
+		if streams(body) {
+			if msg, failed := streamAnswer(res.Body); failed {
+				r.Error = msg
+				return r
+			}
+		}
+		r.OK = true
+		return r
+	}
+	b, _ := io.ReadAll(io.LimitReader(res.Body, 4096))
+	r.Error = APIError(b, res.Status)
+	return r
+}
+
+// streams reports whether a request body asks for a stream.
+func streams(body []byte) bool {
+	var v struct {
+		Stream bool `json:"stream"`
+	}
+	return json.Unmarshal(body, &v) == nil && v.Stream
+}
+
+// streamAnswer reads a streamed answer up to the first thing the model
+// says — a word, a thought or a tool call, in Chat's, Responses' or
+// Anthropic's events — and reports an error the stream gives before that.
+// A stream that ends with neither was answered, as a 200 always was.
+func streamAnswer(r io.Reader) (msg string, failed bool) {
+	sc := bufio.NewScanner(io.LimitReader(r, 1<<20))
+	sc.Buffer(make([]byte, 64*1024), 1<<20)
+	for sc.Scan() {
+		data, ok := strings.CutPrefix(strings.TrimSpace(sc.Text()), "data:")
+		if !ok {
+			continue
+		}
+		data = strings.TrimSpace(data)
+		if data == "" || data == "[DONE]" {
+			continue
+		}
+		var ev struct {
+			Type     string          `json:"type"`
+			Error    json.RawMessage `json:"error"`
+			Response struct {
+				Error json.RawMessage `json:"error"`
+			} `json:"response"`
+			Choices []struct {
+				Delta map[string]any `json:"delta"`
+			} `json:"choices"`
+		}
+		if json.Unmarshal([]byte(data), &ev) != nil {
+			continue
+		}
+		if ev.Type == "error" || len(ev.Error) > 0 && string(ev.Error) != "null" {
+			return APIError([]byte(data), "error in the stream"), true
+		}
+		if ev.Type == "response.failed" {
+			if len(ev.Response.Error) > 0 && string(ev.Response.Error) != "null" {
+				return APIError([]byte(`{"error":`+string(ev.Response.Error)+`}`), "response failed"), true
+			}
+			return "response failed", true
+		}
+		if ev.Type == "content_block_start" || ev.Type == "content_block_delta" || ev.Type == "response.output_item.added" ||
+			strings.HasPrefix(ev.Type, "response.") && strings.HasSuffix(ev.Type, ".delta") {
+			return "", false
+		}
+		for _, c := range ev.Choices {
+			for _, k := range []string{"content", "reasoning", "reasoning_content", "tool_calls"} {
+				if v, ok := c.Delta[k]; ok && v != nil && v != "" {
+					return "", false
+				}
+			}
+		}
+	}
+	return "", false
+}
+
+// EdgeBlocked says whether an error body is a firewall's block page rather
+// than the vendor's API answering, or one already put in plain words.
+func EdgeBlocked(b []byte) bool {
+	return cloudcodec.EdgeBlocked.Match(b) || bytes.Contains(b, []byte(BlockedHint)) || bytes.Contains(b, []byte(ZCodeStartBlockedHint))
+}
+
+// ErrorType is the kind of error a vendor's body names — the error's type
+// (rate_limit_error, usage_limit_reached), else its code — or "" when it
+// names none: what to set beside the status when a request failed.
+func ErrorType(b []byte) string {
+	var v struct {
+		Error json.RawMessage `json:"error"`
+		Type  string          `json:"type"`
+		Code  json.RawMessage `json:"code"`
+	}
+	if json.Unmarshal(b, &v) != nil {
+		return ""
+	}
+	name := func(raw json.RawMessage) string {
+		var s string
+		if json.Unmarshal(raw, &s) == nil {
+			return strings.TrimSpace(s)
+		}
+		var n json.Number
+		if json.Unmarshal(raw, &n) == nil {
+			return n.String()
+		}
+		return ""
+	}
+	var e struct {
+		Type string          `json:"type"`
+		Code json.RawMessage `json:"code"`
+	}
+	if json.Unmarshal(v.Error, &e) == nil {
+		if e.Type != "" {
+			return e.Type
+		}
+		if c := name(e.Code); c != "" {
+			return c
+		}
+	}
+	if c := name(v.Code); c != "" {
+		return c
+	}
+	if v.Type != "" && v.Type != "error" {
+		return v.Type
+	}
+	return ""
+}

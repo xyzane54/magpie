@@ -1,0 +1,12 @@
+{
+  "model":"profile-pinned",
+  "input":[
+    {"role":"user","content":"读取文件"},
+    {"type":"function_call","call_id":"call_old","name":"run","arguments":"{\"id\":9007199254740993,\"image\":\"business data\"}"},
+    {"type":"function_call_output","call_id":"call_old","output":""},
+    {"role":"user","content":[{"type":"input_text","text":"继续\n"},{"type":"input_text","text":"读取下一项"}]}
+  ],
+  "previous_response_id":null,
+  "store":false,
+  "tools":[{"type":"function","name":"run","parameters":{"type":"object","properties":{"image":{"anyOf":[{"type":"string"},{"type":"null"}]},"id":{"type":"integer"}}}}]
+}

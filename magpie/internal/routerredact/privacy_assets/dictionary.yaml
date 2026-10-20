@@ -1,0 +1,20 @@
+- term: "Project Aurora"
+  label: business_confidential
+  case_sensitive: false
+
+- term: "内部核心客户"
+  label: business_confidential
+  case_sensitive: true
+
+- term: "GB/T 35273-2020"
+  label: public_information
+  case_sensitive: false
+  provenance: "全国标准信息公共服务平台"
+
+- term: "科大讯飞"
+  label: business_confidential
+  case_sensitive: true
+
+- term: "科大讯飞股份有限公司"
+  label: business_confidential
+  case_sensitive: true

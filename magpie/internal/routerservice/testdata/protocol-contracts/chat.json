@@ -1,0 +1,10 @@
+{
+  "model": "profile-pinned",
+  "messages": [
+    {"role":"user","content":"读取文件"},
+    {"role":"assistant","content":null,"tool_calls":[{"id":"call_old","type":"function","function":{"name":"run","arguments":"{\"id\":9007199254740993,\"image\":\"business data\"}"}}]},
+    {"role":"tool","tool_call_id":"call_old","content":""},
+    {"role":"user","content":[{"type":"text","text":"继续\n"},{"type":"text","text":"读取下一项"}]}
+  ],
+  "tools":[{"type":"function","function":{"name":"run","parameters":{"type":"object","properties":{"image":{"anyOf":[{"type":"string"},{"type":"null"}]},"id":{"type":"integer"}}}}}]
+}

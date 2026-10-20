@@ -1,0 +1,253 @@
+{
+  "model": "qwen3.8-max-0902",
+  "messages": [
+    {
+      "content": "<redacted text>",
+      "role": "system"
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "<redacted text>"
+        },
+        {
+          "type": "text",
+          "text": "<redacted text>"
+        }
+      ],
+      "agent": "<redacted text>"
+    },
+    {
+      "role": "assistant",
+      "tool_calls": [
+        {
+          "id": "captured_id_1",
+          "type": "function",
+          "function": {
+            "name": "Read",
+            "arguments": "{\"file_path\":\"<redacted text>\"}"
+          }
+        },
+        {
+          "id": "captured_id_2",
+          "type": "function",
+          "function": {
+            "name": "Read",
+            "arguments": "{\"file_path\":\"<redacted text>\"}"
+          }
+        }
+      ],
+      "reasoning": "<redacted text>",
+      "messageId": "<redacted text>",
+      "model": "qwen3.8-max-0902",
+      "requestModelId": "<redacted text>",
+      "requestModelName": "<redacted text>",
+      "traceId": "<redacted text>",
+      "conversationRequestId": "<redacted text>",
+      "agent": "<redacted text>",
+      "argumentsDisplayText": "<redacted text>"
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "captured_id_1",
+      "content": "<redacted text>",
+      "messageId": "<redacted text>",
+      "model": "qwen3.8-max-0902",
+      "requestModelId": "<redacted text>",
+      "requestModelName": "<redacted text>",
+      "traceId": "<redacted text>",
+      "conversationRequestId": "<redacted text>",
+      "agent": "<redacted text>"
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "captured_id_2",
+      "content": "<redacted text>",
+      "messageId": "<redacted text>",
+      "model": "qwen3.8-max-0902",
+      "requestModelId": "<redacted text>",
+      "requestModelName": "<redacted text>",
+      "traceId": "<redacted text>",
+      "conversationRequestId": "<redacted text>",
+      "agent": "<redacted text>"
+    },
+    {
+      "role": "assistant",
+      "tool_calls": [
+        {
+          "id": "captured_id_3",
+          "type": "function",
+          "function": {
+            "name": "Edit",
+            "arguments": "{\"file_path\":\"<redacted text>\",\"old_string\":\"<redacted text>\",\"new_string\":\"<redacted text>\"}"
+          }
+        }
+      ],
+      "reasoning": "<redacted text>",
+      "messageId": "<redacted text>",
+      "model": "qwen3.8-max-0902",
+      "requestModelId": "<redacted text>",
+      "requestModelName": "<redacted text>",
+      "traceId": "<redacted text>",
+      "conversationRequestId": "<redacted text>"
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "captured_id_3",
+      "content": "<redacted text>",
+      "messageId": "<redacted text>",
+      "model": "qwen3.8-max-0902",
+      "requestModelId": "<redacted text>",
+      "requestModelName": "<redacted text>",
+      "traceId": "<redacted text>",
+      "conversationRequestId": "<redacted text>",
+      "agent": "<redacted text>"
+    },
+    {
+      "role": "assistant",
+      "tool_calls": [
+        {
+          "id": "captured_id_4",
+          "type": "function",
+          "function": {
+            "name": "Bash",
+            "arguments": "{\"command\":\"<redacted text>\",\"description\":\"<redacted text>\"}"
+          }
+        }
+      ],
+      "reasoning": "<redacted text>",
+      "messageId": "<redacted text>",
+      "model": "qwen3.8-max-0902",
+      "requestModelId": "<redacted text>",
+      "requestModelName": "<redacted text>",
+      "traceId": "<redacted text>",
+      "conversationRequestId": "<redacted text>"
+    },
+    {
+      "role": "tool",
+      "tool_call_id": "captured_id_4",
+      "content": "<redacted text>",
+      "messageId": "<redacted text>",
+      "model": "qwen3.8-max-0902",
+      "requestModelId": "<redacted text>",
+      "requestModelName": "<redacted text>",
+      "traceId": "<redacted text>",
+      "conversationRequestId": "<redacted text>",
+      "agent": "<redacted text>"
+    }
+  ],
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "Read",
+        "description": "<redacted text>",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "file_path": {
+              "type": "string",
+              "description": "<redacted text>"
+            },
+            "offset": {
+              "type": "number",
+              "description": "<redacted text>"
+            },
+            "limit": {
+              "type": "number",
+              "description": "<redacted text>"
+            }
+          },
+          "required": [
+            "file_path"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "strict": false
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "Edit",
+        "description": "<redacted text>",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "file_path": {
+              "type": "string",
+              "description": "<redacted text>"
+            },
+            "old_string": {
+              "type": "string",
+              "description": "<redacted text>"
+            },
+            "new_string": {
+              "type": "string",
+              "description": "<redacted text>"
+            },
+            "replace_all": {
+              "type": "boolean",
+              "default": false,
+              "description": "<redacted text>"
+            }
+          },
+          "required": [
+            "file_path",
+            "old_string",
+            "new_string"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "strict": false
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "Bash",
+        "description": "<redacted text>",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "description": "<redacted text>"
+            },
+            "timeout": {
+              "type": "number",
+              "description": "<redacted text>"
+            },
+            "description": {
+              "type": "string",
+              "description": "<redacted text>"
+            },
+            "run_in_background": {
+              "type": "boolean",
+              "description": "<redacted text>"
+            },
+            "dangerouslyDisableSandbox": {
+              "type": "boolean",
+              "description": "<redacted text>"
+            }
+          },
+          "required": [
+            "command"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "strict": false
+      }
+    }
+  ],
+  "temperature": 1,
+  "stream": true,
+  "stream_options": {
+    "include_usage": true
+  }
+}

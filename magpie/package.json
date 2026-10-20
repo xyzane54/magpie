@@ -1,0 +1,11 @@
+{
+  "name": "api-router-product-regression",
+  "private": true,
+  "engines": { "node": "22.x || 24.x" },
+  "scripts": {
+    "test": "node scripts/product-regression.cjs",
+    "test:entry": "node --test scripts/tests/*.test.cjs",
+    "browsers:install": "node scripts/install-product-browsers.cjs"
+  },
+  "devDependencies": { "playwright": "1.55.1" }
+}

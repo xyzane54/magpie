@@ -1,0 +1,10 @@
+{
+  "model":"profile-pinned",
+  "max_tokens":64,
+  "messages":[
+    {"role":"user","content":"读取文件"},
+    {"role":"assistant","content":[{"type":"tool_use","id":"call_old","name":"run","input":{"id":9007199254740993,"image":"business data"}}]},
+    {"role":"user","content":[{"type":"tool_result","tool_use_id":"call_old","content":""},{"type":"text","text":"继续\n"},{"type":"text","text":"读取下一项"}]}
+  ],
+  "tools":[{"name":"run","input_schema":{"type":"object","properties":{"image":{"anyOf":[{"type":"string"},{"type":"null"}]},"id":{"type":"integer"}}}}]
+}

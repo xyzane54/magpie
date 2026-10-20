@@ -1,0 +1,50 @@
+[
+  {
+    "id": "workbuddy-task1",
+    "source": "magpie/internal/routercloud/testdata/workbuddy/workbuddy-5.3.8-real-task1.request.json",
+    "sha256": "2ff70161e8ed5ee7ab10ed679ae215c48ba1433f8c1f23f098fd2036a5f1247d",
+    "kind": "captured-redacted"
+  },
+  {
+    "id": "workbuddy-tool-history",
+    "source": "magpie/internal/routercloud/testdata/workbuddy/workbuddy-5.3.8-real-tool-history.request.json",
+    "sha256": "2acf5d3ea92c5f13d4f18294d6b87e3b5291f0242f360d49778c23be517e597d",
+    "kind": "captured-redacted"
+  },
+  {
+    "id": "workbuddy-completed-tools",
+    "source": "magpie/internal/routercloud/testdata/workbuddy/workbuddy-5.3.8-real-completed-tools.request.json",
+    "sha256": "bc2100951b48657878cc6cde03ff526c797005d46bb69590807b6e03c755a07a",
+    "kind": "captured-redacted"
+  },
+  {
+    "id": "workbuddy-cancel",
+    "source": "magpie/internal/routercloud/testdata/workbuddy/workbuddy-5.3.8-real-cancel.request.json",
+    "sha256": "9ff55366f8dbe5183a6bb127b01d32b583272210da60b832af1b97f81b5ec436",
+    "kind": "captured-redacted"
+  },
+  {
+    "id": "workbuddy-cancel-only",
+    "source": "magpie/internal/routercloud/testdata/workbuddy/workbuddy-5.3.8-real-cancel.request.json",
+    "sha256": "9ff55366f8dbe5183a6bb127b01d32b583272210da60b832af1b97f81b5ec436",
+    "kind": "captured-redacted"
+  },
+  {
+    "id": "workbuddy-usage-followup",
+    "source": "magpie/internal/routerredact/testdata/round2-hosts/workbuddy-assistant-usage.request.json",
+    "sha256": "0228c9171880e2264ecbf62f3927c865954df789c60efc5daf4e54999833ce53",
+    "kind": "synthetic"
+  },
+  {
+    "id": "workbuddy-usage-complete",
+    "source": "magpie/internal/routercloud/testdata/workbuddy/workbuddy-usage-fixture.json",
+    "sha256": "f39dd2eb6750c5660aa3ddc423e0c4e6494aa45dba62681d33a865335d84c6c5",
+    "kind": "synthetic"
+  },
+  {
+    "id": "loomy-comment-reconstruction",
+    "source": "magpie/internal/routerredact/testdata/round2-hosts/loomy-comment-reconstruction.request.json",
+    "sha256": "219845863538168071160c1dde7c796ac6d95e0cb7144db3cb5b105ad90fc840",
+    "kind": "synthetic-reconstruction"
+  }
+]

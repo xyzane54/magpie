@@ -1,0 +1,75 @@
+version: "2026-10-17.1"
+
+failure_mode: closed
+
+routes:
+  - id: redact-default
+    tenant: "*"
+    failure_mode: closed
+    unknown_category_action: mask
+    detectors:
+      rules:
+        enabled: true
+        timeout_ms: 500
+      dictionary:
+        enabled: false
+        timeout_ms: 500
+        path: null
+      local_llm:
+        enabled: true
+        timeout_ms: 180000
+    categories:
+      # Internal allow labels are not exposed to the LLM.
+      public_information:
+        severity: low
+        action: allow
+        accept_sources: [dictionary]
+        override_other_findings: true
+      job_title:
+        severity: low
+        action: allow
+
+      person:
+        severity: high
+        action: mask
+        placeholder: "<PERSON:{ordinal}>"
+      organization:
+        severity: high
+        action: mask
+        placeholder: "<ORGANIZATION:{ordinal}>"
+      contact:
+        severity: high
+        action: mask
+        placeholder: "<CONTACT:{ordinal}>"
+      address:
+        severity: high
+        action: mask
+        placeholder: "<ADDRESS:{ordinal}>"
+      identifier:
+        severity: high
+        action: mask
+        placeholder: "<IDENTIFIER:{ordinal}>"
+      account:
+        severity: critical
+        action: mask
+        placeholder: "<ACCOUNT:{ordinal}>"
+      secret:
+        severity: critical
+        action: mask
+        placeholder: "<SECRET:{ordinal}>"
+      amount:
+        severity: high
+        action: mask
+        placeholder: "<AMOUNT:{ordinal}>"
+      ratio:
+        severity: high
+        action: mask
+        placeholder: "<RATIO:{ordinal}>"
+      date:
+        severity: medium
+        action: mask
+        placeholder: "<DATE:{ordinal}>"
+      sensitive_content:
+        severity: critical
+        action: mask
+        placeholder: "<SENSITIVE_CONTENT:{ordinal}>"

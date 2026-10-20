@@ -1,0 +1,135 @@
+{
+  "model": "qwen3.8-max-0902",
+  "messages": [
+    {
+      "content": "<redacted text>",
+      "role": "system"
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "<redacted text>"
+        },
+        {
+          "type": "text",
+          "text": "<redacted text>"
+        }
+      ],
+      "agent": "<redacted text>"
+    }
+  ],
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "Read",
+        "description": "<redacted text>",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "file_path": {
+              "type": "string",
+              "description": "<redacted text>"
+            },
+            "offset": {
+              "type": "number",
+              "description": "<redacted text>"
+            },
+            "limit": {
+              "type": "number",
+              "description": "<redacted text>"
+            }
+          },
+          "required": [
+            "file_path"
+          ],
+          "additionalProperties": false,
+          "$schema": "<redacted text>"
+        },
+        "strict": false
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "Edit",
+        "description": "<redacted text>",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "file_path": {
+              "type": "string",
+              "description": "<redacted text>"
+            },
+            "old_string": {
+              "type": "string",
+              "description": "<redacted text>"
+            },
+            "new_string": {
+              "type": "string",
+              "description": "<redacted text>"
+            },
+            "replace_all": {
+              "type": "boolean",
+              "default": false,
+              "description": "<redacted text>"
+            }
+          },
+          "required": [
+            "file_path",
+            "old_string",
+            "new_string"
+          ],
+          "additionalProperties": false,
+          "$schema": "<redacted text>"
+        },
+        "strict": false
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "Bash",
+        "description": "<redacted text>",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "description": "<redacted text>"
+            },
+            "timeout": {
+              "type": "number",
+              "description": "<redacted text>"
+            },
+            "description": {
+              "type": "string",
+              "description": "<redacted text>"
+            },
+            "run_in_background": {
+              "type": "boolean",
+              "description": "<redacted text>"
+            },
+            "dangerouslyDisableSandbox": {
+              "type": "boolean",
+              "description": "<redacted text>"
+            }
+          },
+          "required": [
+            "command"
+          ],
+          "additionalProperties": false,
+          "$schema": "<redacted text>"
+        },
+        "strict": false
+      }
+    }
+  ],
+  "temperature": 1,
+  "stream": true,
+  "stream_options": {
+    "include_usage": true
+  }
+}

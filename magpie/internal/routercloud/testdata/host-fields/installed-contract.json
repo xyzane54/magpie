@@ -1,0 +1,1106 @@
+{
+  "scope": "Reconstructed single-feature requests from installed WorkBuddy serializer/producers and hash-matched Loomy SDK source map; synthetic values; no claim of literal wire capture.",
+  "cases": [
+    {
+      "id": "option-frequency_penalty",
+      "host": "both",
+      "source": "WorkBuddy Chat model builder / Loomy compatible getArgs",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": "fixture"
+          }
+        ],
+        "frequency_penalty": 0.2
+      }
+    },
+    {
+      "id": "option-presence_penalty",
+      "host": "both",
+      "source": "WorkBuddy Chat model builder / Loomy compatible getArgs",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": "fixture"
+          }
+        ],
+        "presence_penalty": -0.2
+      }
+    },
+    {
+      "id": "option-seed",
+      "host": "loomy",
+      "source": "Compatible getArgs seed",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": "fixture"
+          }
+        ],
+        "seed": 42
+      }
+    },
+    {
+      "id": "option-user",
+      "host": "loomy",
+      "source": "Compatible provider options user",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": "fixture"
+          }
+        ],
+        "user": "fixture-user"
+      }
+    },
+    {
+      "id": "option-verbosity",
+      "host": "both",
+      "source": "WorkBuddy modelSettings.text / Loomy textVerbosity",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": "fixture"
+          }
+        ],
+        "verbosity": "low"
+      }
+    },
+    {
+      "id": "option-store",
+      "host": "workbuddy",
+      "source": "Chat modelSettings.store",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": "fixture"
+          }
+        ],
+        "store": false
+      }
+    },
+    {
+      "id": "option-prompt_cache_retention",
+      "host": "workbuddy",
+      "source": "Chat modelSettings.promptCacheRetention",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": "fixture"
+          }
+        ],
+        "prompt_cache_retention": "in-memory"
+      }
+    },
+    {
+      "id": "workbuddy-user-skipRun",
+      "host": "workbuddy",
+      "source": "createUserMessage / hook feedback / queue hold",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "skipRun": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-user-isMeta",
+      "host": "workbuddy",
+      "source": "createUserMessage / hook feedback / queue hold",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "isMeta": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-user-queueHold",
+      "host": "workbuddy",
+      "source": "createUserMessage / hook feedback / queue hold",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "queueHold": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-user-isCompactInternal",
+      "host": "workbuddy",
+      "source": "compact strategy recovery summary",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "isCompactInternal": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-user-isCompacted",
+      "host": "workbuddy",
+      "source": "compact strategy recovery summary",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "isCompacted": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-user-isSummary",
+      "host": "workbuddy",
+      "source": "compact strategy recovery summary",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "isSummary": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-user-compactType",
+      "host": "workbuddy",
+      "source": "compact strategy recovery summary",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "compactType": "emergency-auto"
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-user-skipRun",
+      "host": "workbuddy",
+      "source": "compact strategy recovery summary",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "skipRun": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-user-isCompactInternal",
+      "host": "workbuddy",
+      "source": "prompt-too-long recovery",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "isCompactInternal": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-user-isPtlRecovery",
+      "host": "workbuddy",
+      "source": "prompt-too-long recovery",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "isPtlRecovery": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-user-isPtlRetryMarker",
+      "host": "workbuddy",
+      "source": "prompt-too-long recovery",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "isPtlRetryMarker": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-user-skipRun",
+      "host": "workbuddy",
+      "source": "prompt-too-long recovery",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "skipRun": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-user-isCompactInternal",
+      "host": "workbuddy",
+      "source": "media body recovery",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "isCompactInternal": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-user-isMediaBodyRecovery",
+      "host": "workbuddy",
+      "source": "media body recovery",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "isMediaBodyRecovery": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-user-isPtlRetryMarker",
+      "host": "workbuddy",
+      "source": "media body recovery",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "isPtlRetryMarker": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-user-teammateMessage",
+      "host": "workbuddy",
+      "source": "teammate message producer",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "teammateMessage": {
+              "from": "fixture-agent",
+              "summary": "fixture summary",
+              "color": "blue",
+              "timestamp": "2026-10-19T00:00:00Z"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-assistant-manual",
+      "host": "workbuddy",
+      "source": "createToolCallItem",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "manual": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-assistant-skipRun",
+      "host": "workbuddy",
+      "source": "createToolCallItem",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "skipRun": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-assistant-isSubAgent",
+      "host": "workbuddy",
+      "source": "subagent output processor / approval queue",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "isSubAgent": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-assistant-isTeamMember",
+      "host": "workbuddy",
+      "source": "subagent output processor / approval queue",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "isTeamMember": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-assistant-memberName",
+      "host": "workbuddy",
+      "source": "subagent output processor / approval queue",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "memberName": "fixture-agent"
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-assistant-agentColor",
+      "host": "workbuddy",
+      "source": "subagent output processor / approval queue",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "agentColor": "blue"
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-assistant-queuePosition",
+      "host": "workbuddy",
+      "source": "subagent output processor / approval queue",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "queuePosition": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-assistant-queueTotal",
+      "host": "workbuddy",
+      "source": "subagent output processor / approval queue",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "queueTotal": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-assistant-_enqueuedViaQueue",
+      "host": "workbuddy",
+      "source": "subagent output processor / approval queue",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "_enqueuedViaQueue": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-assistant-permissionDecisionReason",
+      "host": "workbuddy",
+      "source": "subagent output processor / approval queue",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "permissionDecisionReason": "fixture reason"
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-assistant-skipRun",
+      "host": "workbuddy",
+      "source": "createHookMessage",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "skipRun": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-assistant-hookEvent",
+      "host": "workbuddy",
+      "source": "createHookMessage",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "hookEvent": "PostToolUse"
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-assistant-hookStatus",
+      "host": "workbuddy",
+      "source": "createHookMessage",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "hookStatus": "success"
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-assistant-callId",
+      "host": "workbuddy",
+      "source": "createHookMessage",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "callId": "fixture-call"
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-assistant-exitCode",
+      "host": "workbuddy",
+      "source": "createHookMessage",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "exitCode": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-tool-skipRun",
+      "host": "workbuddy",
+      "source": "createToolCallResultItem / interrupted history fill",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "tool",
+            "tool_call_id": "fixture-call",
+            "content": "fixture result",
+            "skipRun": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-tool-error",
+      "host": "workbuddy",
+      "source": "createToolCallResultItem / interrupted history fill",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "tool",
+            "tool_call_id": "fixture-call",
+            "content": "fixture result",
+            "error": {
+              "message": "fixture tool failed"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-tool-isPartialAborted",
+      "host": "workbuddy",
+      "source": "createToolCallResultItem / interrupted history fill",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "tool",
+            "tool_call_id": "fixture-call",
+            "content": "fixture result",
+            "isPartialAborted": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-system-skipRun",
+      "host": "workbuddy",
+      "source": "clear-session boundary producer",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "system",
+            "content": "fixture",
+            "skipRun": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-system-isSessionSeparator",
+      "host": "workbuddy",
+      "source": "clear-session boundary producer",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "system",
+            "content": "fixture",
+            "isSessionSeparator": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-system-separatorMessageId",
+      "host": "workbuddy",
+      "source": "clear-session boundary producer",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "system",
+            "content": "fixture",
+            "separatorMessageId": "fixture-boundary"
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-system-separatorExtra",
+      "host": "workbuddy",
+      "source": "clear-session boundary producer",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "system",
+            "content": "fixture",
+            "separatorExtra": {
+              "isSessionSeparator": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-assistant-extra_fields",
+      "host": "workbuddy",
+      "source": "reasoning extra_fields serializer",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture"
+              }
+            ],
+            "extra_fields": {
+              "vendor": {
+                "signature": "fixture signature"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-refusal",
+      "host": "workbuddy",
+      "source": "installed assistant content serializer",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "refusal",
+                "refusal": "fixture refusal"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "workbuddy-content-extra-fields",
+      "host": "workbuddy",
+      "source": "installed assistant content serializer",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "fixture",
+                "extra_fields": {
+                  "vendor": {
+                    "signature": "fixture"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "option-promptCacheKey",
+      "host": "loomy",
+      "source": "ProviderTransform.options: gpt/cache settings spread by compatible SDK without renaming",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": "fixture"
+          }
+        ],
+        "promptCacheKey": "fixture-session"
+      }
+    },
+    {
+      "id": "option-reasoningSummary",
+      "host": "loomy",
+      "source": "ProviderTransform.options: gpt/cache settings spread by compatible SDK without renaming",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "user",
+            "content": "fixture"
+          }
+        ],
+        "reasoningSummary": "auto"
+      }
+    },
+    {
+      "id": "loomy-installed-cli-turn-1",
+      "host": "loomy",
+      "source": "Literal installed opencode.exe HTTP capture against isolated local fixture; business strings sanitized consistently; fields, schemas and JSON types retained",
+      "body": {
+        "model": "fixture-model",
+        "user": "fixture-user",
+        "max_tokens": 2048,
+        "frequency_penalty": 0.2,
+        "presence_penalty": -0.2,
+        "seed": 42,
+        "store": false,
+        "prompt_cache_retention": "in-memory",
+        "promptCacheKey": "fixture-cache",
+        "reasoningSummary": "auto",
+        "verbosity": "low",
+        "messages": [
+          {
+            "role": "system",
+            "content": "fixture-text-1"
+          },
+          {
+            "role": "user",
+            "content": "fixture-text-2"
+          }
+        ],
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "name": "read",
+              "description": "fixture-text-3",
+              "parameters": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "filePath": {
+                    "description": "The absolute path to the file or directory to read",
+                    "type": "string"
+                  },
+                  "offset": {
+                    "description": "The line number to start reading from (1-indexed)",
+                    "type": "number"
+                  },
+                  "limit": {
+                    "description": "The maximum number of lines to read (defaults to 2000)",
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "filePath"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        ],
+        "tool_choice": "auto",
+        "stream": true,
+        "stream_options": {
+          "include_usage": true
+        }
+      }
+    },
+    {
+      "id": "loomy-installed-cli-turn-2",
+      "host": "loomy",
+      "source": "Literal installed opencode.exe HTTP capture against isolated local fixture; business strings sanitized consistently; fields, schemas and JSON types retained",
+      "body": {
+        "model": "fixture-model",
+        "user": "fixture-user",
+        "max_tokens": 2048,
+        "frequency_penalty": 0.2,
+        "presence_penalty": -0.2,
+        "seed": 42,
+        "store": false,
+        "prompt_cache_retention": "in-memory",
+        "promptCacheKey": "fixture-cache",
+        "reasoningSummary": "auto",
+        "verbosity": "low",
+        "messages": [
+          {
+            "role": "system",
+            "content": "fixture-text-1"
+          },
+          {
+            "role": "user",
+            "content": "fixture-text-2"
+          },
+          {
+            "role": "assistant",
+            "content": "fixture-text-4",
+            "tool_calls": [
+              {
+                "id": "fixture-text-5",
+                "type": "function",
+                "function": {
+                  "name": "read",
+                  "arguments": "{\"filePath\": \"fixture-text-6\"}"
+                }
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "tool_call_id": "fixture-text-5",
+            "content": "fixture-text-7"
+          }
+        ],
+        "tools": [
+          {
+            "type": "function",
+            "function": {
+              "name": "read",
+              "description": "fixture-text-3",
+              "parameters": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "filePath": {
+                    "description": "The absolute path to the file or directory to read",
+                    "type": "string"
+                  },
+                  "offset": {
+                    "description": "The line number to start reading from (1-indexed)",
+                    "type": "number"
+                  },
+                  "limit": {
+                    "description": "The maximum number of lines to read (defaults to 2000)",
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "filePath"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        ],
+        "tool_choice": "auto",
+        "stream": true,
+        "stream_options": {
+          "include_usage": true
+        }
+      }
+    },
+    {
+      "id": "loomy-interleaved-reasoning-details",
+      "host": "loomy",
+      "source": "ProviderTransform.normalizeMessages interleaved.field -> compatible assistant message metadata; reasoningText is a string",
+      "body": {
+        "model": "fixture-model",
+        "messages": [
+          {
+            "role": "assistant",
+            "content": "fixture",
+            "reasoning_details": "fixture reasoning"
+          }
+        ]
+      }
+    }
+  ]
+}

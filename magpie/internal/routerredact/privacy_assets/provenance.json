@@ -1,0 +1,121 @@
+{
+  "repository": "zhousheng2/privacy_gateway",
+  "branch": "string_only",
+  "commit": "6fcdae87a1dc231c5c6d1d4a4ec24564e1c752df",
+  "sourceFile": "src/privacy_gateway/detectors/local_llm.py",
+  "sourceSHA256": "acd8ca5b448807e6d32fe5935fffd480ab469bf9c57b8819cd7ae98139934b76",
+  "policyFile": "policies/default.yaml",
+  "policySHA256": "44fe2d954c0505a07e0510c2fc21746ad42477dda96af5bbef5ed807995867b4",
+  "upstreamPromptSHA256": "5b87441b26ebe6ebb40c8bf3d8846c3310bb34020ab4d52a20a281232e73e444",
+  "upstreamPromptCodePoints": 8534,
+  "upstreamPromptUTF8Bytes": 15058,
+  "upstreamLabelOrder": "DEFAULT_LABELS tuple declaration order",
+  "reviewSortedLabelsPromptSHA256": "a6b8292ff401ccfc4593761b9fb9bb84dd010af28493b5755c856544cf5686a7",
+  "promptRevision": "privacy-prompt-v5-block-indexed",
+  "adaptedPromptSHA256": "be7d3456400195fe479df3cf56ff18096126ede2a0ab99cae4033565ac8312b2",
+  "archivedAdaptedPromptFile": "prompt.v1.zh.txt",
+  "archivedAdaptedPromptSHA256": "32e6c08d51964f3867b3b19110b6adf1abc6415599df78543d5467e4464b1f39",
+  "archivedExamples": 15,
+  "archivedExampleEntities": 20,
+  "promptRevisionNote": "Strict object output retained after the tuple probe regressed. The complete source index uses one codepoint per block up to 128 codepoints and contiguous blocks of eight beyond that threshold. No source character is omitted and no output span is repaired. This is versioned diagnostic material, not quality acceptance.",
+  "upstreamLicenseFilePresent": false,
+  "licenseDeclarationSource": "pyproject.toml [project].license.text",
+  "licenseDeclarationSHA256": "c3a8063a11491a6f8683c93ec715f699924313c90a537fdb93900cbf16310983",
+  "licenseDeclaration": "Apache-2.0",
+  "licenseNote": "The reviewed project metadata declares Apache-2.0; no standalone repository license file was found. No further legal conclusion is made.",
+  "labels": 49,
+  "examples": 1,
+  "exampleEntities": 1,
+  "coordinateConvention": "Python Unicode code points, start inclusive/end exclusive, per local-batch field",
+  "coordinateCorrections": [
+    {
+      "ordinal": 6,
+      "heading": "示例 5（企业名不是人名）：",
+      "finding": 1,
+      "label": "customer_supplier",
+      "text": "张三科技有限公司",
+      "before": [
+        1,
+        10
+      ],
+      "after": [
+        1,
+        9
+      ],
+      "sliceBefore": "张三科技有限公司签"
+    },
+    {
+      "ordinal": 7,
+      "heading": "示例 6（合法的 combined_identifiable）：",
+      "finding": 1,
+      "label": "combined_identifiable",
+      "text": "2026年10月13日华东大区销售总监在世纪大道100号",
+      "before": [
+        0,
+        29
+      ],
+      "after": [
+        0,
+        28
+      ],
+      "sliceBefore": "2026年10月13日华东大区销售总监在世纪大道100号完"
+    },
+    {
+      "ordinal": 9,
+      "heading": "示例 8（密钥与配置）：",
+      "finding": 1,
+      "label": "secret",
+      "text": "MyP@ssw0rd123",
+      "before": [
+        6,
+        18
+      ],
+      "after": [
+        6,
+        19
+      ],
+      "sliceBefore": "MyP@ssw0rd12"
+    },
+    {
+      "ordinal": 9,
+      "heading": "示例 8（密钥与配置）：",
+      "finding": 2,
+      "label": "secret",
+      "text": "sk-abc123xyz",
+      "before": [
+        24,
+        35
+      ],
+      "after": [
+        25,
+        37
+      ],
+      "sliceBefore": "钥sk-abc123x"
+    },
+    {
+      "ordinal": 14,
+      "heading": "示例 13（税号不能误判为电话）：",
+      "finding": 1,
+      "label": "organization_identifier",
+      "text": "91TEST000000000001",
+      "before": [
+        7,
+        25
+      ],
+      "after": [
+        6,
+        24
+      ],
+      "sliceBefore": "1TEST000000000001"
+    }
+  ],
+  "policyAdjustments": [
+    "All 49 valid labels map to reversible masking, including public_information; no allow override.",
+    "No rule/dictionary fallback assumption; model must cover formatted and unformatted values.",
+    "Low-confidence findings remain findings; finite confidence in [0,1] is required.",
+    "No literal-search coordinate recovery, silent malformed-output dropping or placeholder-shape exemption.",
+    "No amount generalization or value rewrite; use Router deterministic reversible placeholders.",
+    "Runtime invocation, capability checks, shared model, no-thinking and 15-second total budget remain Router-owned."
+  ],
+  "qualityAccepted": false
+}

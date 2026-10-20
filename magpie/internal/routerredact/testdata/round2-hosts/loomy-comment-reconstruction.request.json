@@ -1,0 +1,12 @@
+{
+  "$comment": "fixture Loomy installed-agent options; reconstruction from verified string type, not a captured body",
+  "model": "profile-pinned",
+  "messages": [
+    {"role": "system", "content": "Synthetic fixture instructions."},
+    {"role": "user", "content": "Read the dedicated fixture."},
+    {"role": "assistant", "content": null, "tool_calls": [{"id": "fixture_call", "type": "function", "function": {"name": "Read", "arguments": "{\"file_path\":\"fixture.txt\"}"}}]},
+    {"role": "tool", "tool_call_id": "fixture_call", "content": "Synthetic fixture result."}
+  ],
+  "tools": [{"type": "function", "function": {"name": "Read", "description": "Read a dedicated fixture", "parameters": {"type": "object", "properties": {"file_path": {"type": "string"}}, "required": ["file_path"], "additionalProperties": false}}}],
+  "stream": false
+}
