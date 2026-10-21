@@ -1,0 +1,43 @@
+name: Wefto macOS diagnostic
+on:
+  push:
+    branches: [codex/wefto-macos-diagnostic]
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: macos-15
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: magpie
+        shell: bash
+    env:
+      GOENV: 'off'
+      GOTOOLCHAIN: local
+      GOWORK: 'off'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: magpie/go.mod
+          cache: false
+      - name: Prepare Go modules
+        run: go mod download
+      - name: Diagnose native service ownership and lifecycle tests
+        env:
+          GOPROXY: 'off'
+          GOSUMDB: 'off'
+          CGO_ENABLED: '1'
+          GOFLAGS: '-mod=readonly -buildvcs=false'
+        run: |
+          mkdir -p dist/macos-diagnostic
+          go test -race -count=1 -p 1 -timeout 3m -v ./internal/routercontrol ./internal/routerservice 2>&1 | tee dist/macos-diagnostic/go.log
+      - name: Preserve diagnostic output
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: wefto-macos-diagnostic
+          path: magpie/dist/macos-diagnostic/
