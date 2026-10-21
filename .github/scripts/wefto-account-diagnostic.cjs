@@ -1,63 +1,52 @@
 'use strict';
-const fs = require('node:fs');
-const path = require('node:path');
-const os = require('node:os');
-const {execFileSync,spawnSync} = require('node:child_process');
-const repository = path.resolve(__dirname,'../..');
-const product = path.join(repository,'magpie');
-const {withHeavyLock} = require(path.join(product,'scripts/heavy-regression-lock.cjs'));
-const {isolatedEnv} = require(path.join(product,'scripts/product-regression.cjs'));
-const git = args=>execFileSync('git',args,{cwd:repository,encoding:'utf8'}).trim();
+const fs=require('node:fs'), path=require('node:path'), os=require('node:os');
+const {execFileSync,spawnSync}=require('node:child_process');
+const repository=path.resolve(__dirname,'../..'), product=path.join(repository,'magpie');
+const {withHeavyLock}=require(path.join(product,'scripts/heavy-regression-lock.cjs'));
+const {isolatedEnv}=require(path.join(product,'scripts/product-regression.cjs'));
+const git=args=>execFileSync('git',args,{cwd:repository,encoding:'utf8'}).trim();
 withHeavyLock(async()=>{
-  const output=path.join(product,'dist/replacement-diagnostic'); fs.mkdirSync(output,{recursive:true});
-  const source=path.join(product,'internal/provider/logins.go'); const original=fs.readFileSync(source);
-  const old=original.toString();
-  const needle='ls, err := filememo.Read("logins", loginsPath(), parseLogins)';
-  if(old.split(needle).length!==2) throw new Error('Cannot find the exact account read boundary');
-  const injected=old.replace(needle,needle+'\n\tif err != nil || len(ls) == 0 { log.Printf("DIAGNOSTIC account read: count=%d error=%T %v", len(ls), err, err) }');
-  const memoSource=path.join(product,'internal/filememo/filememo.go'); const memoOriginal=fs.readFileSync(memoSource);
-  const memoNeedle='\tvar fi os.FileInfo\n\tvar err error';
-  const memoResult='\tmu.Lock()\n\tif errors.Is(err, fs.ErrNotExist) {';
-  const memoOld=memoOriginal.toString();
-  if(memoOld.split(memoNeedle).length!==2 || memoOld.split(memoResult).length!==2)throw new Error('Cannot find exact stat boundary');
-  const memoInjected=memoOld.replace('"io/fs"','"io/fs"\n "log"\n "path/filepath"').replace(memoNeedle,'\tstarted := time.Now()\n'+memoNeedle).replace(memoResult,`
-  if err != nil && filepath.Base(path) == "logins.json" {
-    _, probeErr := steady.StatOnce(path)
-    root, rootErr := os.OpenRoot(filepath.Dir(path))
-    var relativeErr error
-    if rootErr == nil { _, relativeErr = root.Stat(filepath.Base(path)); root.Close() }
-    log.Printf("DIAGNOSTIC metadata: knownAbsent=%v duration=%s original=%v sharedProbe=%v rootOpen=%v relativeProbe=%v", wasGone, time.Since(started), err, probeErr, rootErr, relativeErr)
-  }
-`+memoResult);
+  const output=path.join(product,'dist/replacement-diagnostic');fs.mkdirSync(output,{recursive:true});
+  const originals=new Map();
+  const edit=(name,transform)=>{const file=path.join(product,name), original=fs.readFileSync(file);originals.set(file,original);fs.writeFileSync(file,transform(original.toString()));};
+  const replace=(source,needle,replacement)=>{if(source.split(needle).length!==2)throw new Error('Ambiguous diagnostic boundary: '+needle);return source.replace(needle,replacement);};
   const caches=JSON.parse(execFileSync('go',['env','-json','GOPATH','GOMODCACHE','GOCACHE'],{cwd:product,encoding:'utf8'}));
-  const goRoot=execFileSync('go',['env','GOROOT'],{cwd:product,encoding:'utf8'}).trim();
-  const nativeSource=path.join(goRoot,'src/internal/syscall/windows/at_windows.go');
-  const nativeOriginal=fs.readFileSync(nativeSource);
-  const nativeNeedle='\t// If the prior rename failed, the filesystem might not support';
-  if(nativeOriginal.toString().split(nativeNeedle).length!==2)throw new Error('Cannot find the SDK rename fallback');
-  const nativeInjected=nativeOriginal.toString().replace(nativeNeedle,`
-  if newpath == "logins.json" {
-    print("DIAGNOSTIC extended rename failed: ")
-    if status, ok := err.(NTStatus); ok { println(uint32(status)) } else { println(err.Error()) }
-  }
-`+nativeNeedle);
   const temporary=fs.mkdtempSync(path.join(os.tmpdir(),'wefto-account-diag-'));
   const env={...isolatedEnv(process.env,temporary,caches),CGO_ENABLED:'1',GOTELEMETRY:'off'};
-  const report={candidate:git(['rev-parse','HEAD']),productTree:git(['rev-parse','HEAD:magpie']),instrumentation:'Log only the count and original read error before account fallback; no credential contents',status:'failed'};
+  const report={candidate:git(['rev-parse','HEAD']),productTree:git(['rev-parse','HEAD:magpie']),instrumentation:'Count native and direct publication, then stop writers only after the original account-empty assertion fires; log only errors, paths, filenames and sizes',status:'failed'};
   try{
-    fs.writeFileSync(source,injected);
-    fs.writeFileSync(memoSource,memoInjected);
-    fs.writeFileSync(nativeSource,nativeInjected);
-    report.toolchainInstrumentation='Print the original NT status before the unmodified Go rename fallback; no changed return or retry behavior';
+    edit('internal/steady/rename_windows.go',source=>{
+      source=replace(source,'"path/filepath"','"path/filepath"\n "sync/atomic"\n "log"');
+      source=source.replaceAll('return os.Rename(oldpath, newpath)','diagnosticDirect.Add(1); return os.Rename(oldpath, newpath)');
+      source=replace(source,'\troot, err := os.OpenRoot(directory)','\tif diagnosticRoots.Add(1) <= 2 { log.Printf("DIAGNOSTIC sibling publisher: old=%q new=%q directory=%q", oldpath, newpath, directory) }\n\troot, err := os.OpenRoot(directory)');
+      return source+'\nvar diagnosticRoots, diagnosticDirect atomic.Uint64\nfunc DiagnosticRenames() (uint64,uint64) { return diagnosticRoots.Load(), diagnosticDirect.Load() }\n';
+    });
+    edit('internal/provider/logins_windows_test.go',source=>{
+      source=replace(source,'\tvar stop atomic.Bool','\tvar renamed, renameFailed atomic.Uint64\n\tvar stop atomic.Bool');
+      source=replace(source,'if steady.Rename(tmp.Name(), p) != nil {\n\t\t\t\t\tos.Remove(tmp.Name())\n\t\t\t\t}',`if renameErr := steady.Rename(tmp.Name(), p); renameErr != nil {
+          if renameFailed.Add(1) <= 3 { t.Logf("DIAGNOSTIC publication failure: %v", renameErr) }
+          os.Remove(tmp.Name())
+        } else { renamed.Add(1) }`);
+      return replace(source,'\t\t\tmisses++',`\t\t\tmisses++
+      stop.Store(true); <-done; <-done
+      entries, listErr := os.ReadDir(filepath.Dir(p)); var names []string
+      for _, entry := range entries { names=append(names,entry.Name()) }
+      info, statErr := steady.Stat(p); var size int64=-1
+      if info!=nil { size=info.Size() }
+      body, readErr := steady.ReadThere(p)
+      roots, direct := steady.DiagnosticRenames()
+      loginsMu.Unlock()
+      t.Fatalf("DIAGNOSTIC original empty-account failure: successful=%d failed=%d root=%d direct=%d afterStop stat=%v size=%d read=%v bytes=%d directory=%q listError=%v",renamed.Load(),renameFailed.Load(),roots,direct,statErr,size,readErr,len(body),names,listErr)
+`);
+    });
     const args=['test','-race','-count=20','-p','1','-timeout','10m','-run','^TestLoginsKeptWhileAnotherMagpieWrites$','-v','./internal/provider'];
     const child=spawnSync('go',args,{cwd:product,env,encoding:'utf8',windowsHide:true,maxBuffer:32*1024*1024});
-    const log=(child.stdout||'')+(child.stderr||''); fs.writeFileSync(path.join(output,'account-read.log'),log);process.stdout.write(log);report.code=child.status;
+    const log=(child.stdout||'')+(child.stderr||'');fs.writeFileSync(path.join(output,'account-read.log'),log);process.stdout.write(log);report.code=child.status;
     if(child.error)throw child.error;
-    report.status=child.status===0?'passed':'failed'; process.exitCode=child.status;
+    report.status=child.status===0?'passed':'failed';process.exitCode=child.status;
   }finally{
-    fs.writeFileSync(source,original); report.trackedDirty=!!git(['status','--porcelain','--untracked-files=no']);
-    fs.writeFileSync(memoSource,memoOriginal); report.trackedDirty=!!git(['status','--porcelain','--untracked-files=no']);
-    fs.writeFileSync(nativeSource,nativeOriginal);
+    for(const [file,body] of originals)fs.writeFileSync(file,body);
+    report.trackedDirty=!!git(['status','--porcelain','--untracked-files=no']);
     fs.writeFileSync(path.join(output,'account-report.json'),JSON.stringify(report,null,2));
     if(path.dirname(temporary)!==path.resolve(os.tmpdir())||!path.basename(temporary).startsWith('wefto-account-diag-'))throw new Error('Unexpected temporary path');
     fs.rmSync(temporary,{recursive:true,force:true});
