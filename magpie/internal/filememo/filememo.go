@@ -157,7 +157,7 @@ func statFile(path string) (os.FileInfo, error) {
 	var fi os.FileInfo
 	var err error
 	if wasGone {
-		fi, err = os.Stat(path)
+		fi, err = steady.StatOnce(path)
 	} else {
 		fi, err = steady.Stat(path)
 	}

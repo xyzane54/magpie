@@ -39,7 +39,7 @@ var windows = runtime.GOOS == "windows"
 
 // stat and readFile perform one stat or shared read; tests stand in for them.
 var (
-	stat     = os.Stat
+	stat     = statOnce
 	readFile = readOnce
 )
 
@@ -89,6 +89,10 @@ func Stat(p string) (fs.FileInfo, error) {
 	})
 	return fi, err
 }
+
+// StatOnce makes one metadata lookup with the platform's replacement sharing.
+// A caller that already found a path absent can use it without retrying absence.
+func StatOnce(p string) (fs.FileInfo, error) { return stat(p) }
 
 // ReadThere is ReadFile of a file just found there (Stat): not there now is
 // it being replaced, waited out.

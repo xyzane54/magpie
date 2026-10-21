@@ -15,12 +15,15 @@ withHeavyLock(async () => {
   fs.mkdirSync(output, {recursive:true});
   const source = path.join(product, 'internal/steady/steady.go');
   const fixed = fs.readFileSync(source);
-  const old = execFileSync('git', ['show', baseline+':magpie/internal/steady/steady.go'], {cwd:repository});
+  const originalOld = execFileSync('git', ['show', baseline+':magpie/internal/steady/steady.go'], {cwd:repository});
+  // The new callers name a one-shot metadata API. In the baseline this is
+  // exactly its former os.Stat call, without changing the old I/O behavior.
+  const old = Buffer.concat([originalOld, Buffer.from('\nfunc StatOnce(p string) (fs.FileInfo, error) { return stat(p) }\n')]);
   const caches = JSON.parse(execFileSync('go', ['env','-json','GOPATH','GOMODCACHE','GOCACHE'], {cwd:product,encoding:'utf8'}));
   const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'wefto-replacement-diag-'));
   const env = {...isolatedEnv(process.env, temporary, caches), CGO_ENABLED:'1', GOTELEMETRY:'off'};
   const digest = body => crypto.createHash('sha256').update(body).digest('hex');
-  const report = {candidate:git(['rev-parse','HEAD']),productTree:git(['rev-parse','HEAD:magpie']),baseline,platform:process.platform,cpus:os.availableParallelism(),go:execFileSync('go',['version'],{env,encoding:'utf8'}).trim(),oldSourceSHA256:digest(old),fixedSourceSHA256:digest(fixed),phases:{},status:'failed'};
+  const report = {candidate:git(['rev-parse','HEAD']),productTree:git(['rev-parse','HEAD:magpie']),baseline,baselineCompatibility:'StatOnce delegates to the original stat; no new sharing or retries',platform:process.platform,cpus:os.availableParallelism(),go:execFileSync('go',['version'],{env,encoding:'utf8'}).trim(),originalOldSourceSHA256:digest(originalOld),oldSourceSHA256:digest(old),fixedSourceSHA256:digest(fixed),phases:{},status:'failed'};
   const run = (name, count, filter, packages) => {
     const args = ['test','-race','-count='+count,'-p','1','-timeout','15m','-run',filter,'-v',...packages];
     console.log('Running '+name+': go '+args.join(' '));

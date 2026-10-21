@@ -82,6 +82,11 @@ func TestSharedReadKeepsAbsenceAndReadRestrictions(t *testing.T) {
 			syscall.CloseHandle(handle)
 		}
 	}()
+	for _, stat := range []func(string) (os.FileInfo, error){Stat, StatOnce} {
+		if info, err := stat(path); err != nil || info.Size() != int64(len("accounts")) {
+			t.Fatalf("metadata must not require read-data access: %v, %v", info, err)
+		}
+	}
 	for _, read := range []func(string) ([]byte, error){ReadFile, ReadThere} {
 		if body, err := read(path); !errors.Is(err, winapi.ERROR_SHARING_VIOLATION) || len(body) != 0 {
 			t.Fatalf("read restriction must remain unknown: %q, %v", body, err)

@@ -29,11 +29,19 @@ func TestRead(t *testing.T) {
 		t.Fatalf("after a change: %q, parsed %d times", v, n)
 	}
 	os.Remove(p)
-	if _, err := Read("t", p, parse); !errors.Is(err, fs.ErrNotExist) {
-		t.Fatalf("a file removed on purpose is missing: %v", err)
+	for range 2 {
+		if _, err := Read("t", p, parse); !errors.Is(err, fs.ErrNotExist) {
+			t.Fatalf("a file removed on purpose is missing: %v", err)
+		}
 	}
 	if n != 2 {
 		t.Fatal("a missing file was parsed as empty")
+	}
+	if err := os.WriteFile(p, []byte("ccc"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if value, err := Read("t", p, parse); err != nil || value != "ccc" || n != 3 {
+		t.Fatalf("file recreated after absence: %q, %v, parsed %d times", value, err, n)
 	}
 }
 

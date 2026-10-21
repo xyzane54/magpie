@@ -26,6 +26,8 @@ Provider records contain credential references and previews; API keys remain in 
 
 [`ReadFile` / `ReadThere`](../../internal/steady/read_windows.go) open Windows files with read, write and delete sharing, so reads of the previous generation cooperate with that replacement. Each read owns and closes one handle; ordinary Win32 resolution still follows links outside the parent, and long absolute and relative paths retain extended-path support. Sharing flags do not grant read access: a handle that denies readers still produces a read-sharing error after the bounded retry.
 
+[`Stat` / `StatOnce`](../../internal/steady/stat_windows.go) query metadata from a handle with attribute-only access and the same replacement sharing. A read-data restriction does not prevent metadata lookup. `filememo` uses `StatOnce` for its known-absent fast path, so that path retains a single lookup without reverting to the path-attribute API. A newly created file is detected after a cached absence; true deletion still returns `fs.ErrNotExist`.
+
 [`filememo.Read`](../../internal/filememo/filememo.go) continues to report genuine deletion as `fs.ErrNotExist` and other read failures as errors. The replacement fix does not return a cached account list on failure or parse a missing file as empty. The existing bounded read retries remain for replacement by older or external writers.
 
 ## Service and host recovery

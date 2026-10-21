@@ -10,7 +10,9 @@ import (
 
 // Reads hold one generation without denying an authorized replacement.
 // Keep ordinary Win32 path resolution, including links outside the parent.
-func openReadFile(path string) (*os.File, error) {
+func openReadFile(path string) (*os.File, error) { return openSharedFile(path, syscall.GENERIC_READ) }
+
+func openSharedFile(path string, access uint32) (*os.File, error) {
 	if path == "" {
 		return nil, &os.PathError{Op: "open", Path: path, Err: syscall.ERROR_FILE_NOT_FOUND}
 	}
@@ -19,7 +21,7 @@ func openReadFile(path string) (*os.File, error) {
 		if err != nil {
 			return syscall.InvalidHandle, err
 		}
-		return syscall.CreateFile(p, syscall.GENERIC_READ,
+		return syscall.CreateFile(p, access,
 			syscall.FILE_SHARE_READ|syscall.FILE_SHARE_WRITE|syscall.FILE_SHARE_DELETE,
 			nil, syscall.OPEN_EXISTING, syscall.FILE_ATTRIBUTE_NORMAL|syscall.FILE_FLAG_BACKUP_SEMANTICS, 0)
 	}
