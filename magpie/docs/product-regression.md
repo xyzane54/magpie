@@ -95,6 +95,8 @@ Windows 在 PowerShell 中可用 `npm.cmd`，不要求改变脚本执行策略�
 
 三个独立原生 job 分别使用 Ubuntu 24.04 x64、Windows 2025 x64、macOS 15 arm64。每个 job 从 `go.mod`、`.node-version`、`package-lock.json` 准备工具链、Go modules 和 Playwright 浏览器；Windows 显式检查 MinGW-w64 gcc，Linux 在准备阶段安装浏览器系统库。当前不持久化依赖缓存，避免混用不同平台或镜像版本的缓存。
 
+macOS 在运行入口检查和产品回归前，将系统临时目录解析为真实路径并固定 `TMPDIR`、`TMP`、`TEMP`。系统常见的 `/var` → `/private/var` 别名因此不会混入测试布局；产品原有的符号链接/重解析点路径保护仍生效。
+
 准备完成后运行 `npm run test:entry`，再调用同一条完整入口 `npm test -- --output=dist/regression/ci`；构建、27 包 race、27 包 vet、Chromium 和 WebKit 任一步失败都会阻断该 job。最终还检查 summary 的 `passed`、`complete: true`、干净 tracked 工作树和本次 GitHub 候选 SHA；不使用诊断模式或允许失败的矩阵项。
 
 每个平台始终尝试上传 `magpie/dist/regression/` 为 `wefto-regression-<平台>-<运行次数>` artifact，保留 14 天，包含本次二进制、summary、日志和截图。若在依赖准备阶段即失败，还没有回归目录，错误可从 Actions 步骤日志查看。工作流只获得仓库内容读取权限，不发布 Release，不需要模型、供应商或宿主凭证。

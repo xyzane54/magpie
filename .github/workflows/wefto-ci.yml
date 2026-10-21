@@ -56,6 +56,12 @@ jobs:
           node-version-file: magpie/.node-version
           package-manager-cache: false
 
+      - name: Resolve the macOS temporary directory
+        if: runner.os == 'macOS'
+        run: |
+          canonical_temp="$(cd "${TMPDIR:-/tmp}" && pwd -P)"
+          printf 'TMPDIR=%s\nTMP=%s\nTEMP=%s\n' "$canonical_temp" "$canonical_temp" "$canonical_temp" >> "$GITHUB_ENV"
+
       - name: Configure the Windows race compiler
         if: runner.os == 'Windows'
         shell: pwsh
