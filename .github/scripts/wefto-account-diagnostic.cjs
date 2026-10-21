@@ -30,12 +30,25 @@ withHeavyLock(async()=>{
   }
 `+memoResult);
   const caches=JSON.parse(execFileSync('go',['env','-json','GOPATH','GOMODCACHE','GOCACHE'],{cwd:product,encoding:'utf8'}));
+  const goRoot=execFileSync('go',['env','GOROOT'],{cwd:product,encoding:'utf8'}).trim();
+  const nativeSource=path.join(goRoot,'src/internal/syscall/windows/at_windows.go');
+  const nativeOriginal=fs.readFileSync(nativeSource);
+  const nativeNeedle='\t// If the prior rename failed, the filesystem might not support';
+  if(nativeOriginal.toString().split(nativeNeedle).length!==2)throw new Error('Cannot find the SDK rename fallback');
+  const nativeInjected=nativeOriginal.toString().replace(nativeNeedle,`
+  if newpath == "logins.json" {
+    print("DIAGNOSTIC extended rename failed: ")
+    if status, ok := err.(NTStatus); ok { println(uint32(status)) } else { println(err.Error()) }
+  }
+`+nativeNeedle);
   const temporary=fs.mkdtempSync(path.join(os.tmpdir(),'wefto-account-diag-'));
   const env={...isolatedEnv(process.env,temporary,caches),CGO_ENABLED:'1',GOTELEMETRY:'off'};
   const report={candidate:git(['rev-parse','HEAD']),productTree:git(['rev-parse','HEAD:magpie']),instrumentation:'Log only the count and original read error before account fallback; no credential contents',status:'failed'};
   try{
     fs.writeFileSync(source,injected);
     fs.writeFileSync(memoSource,memoInjected);
+    fs.writeFileSync(nativeSource,nativeInjected);
+    report.toolchainInstrumentation='Print the original NT status before the unmodified Go rename fallback; no changed return or retry behavior';
     const args=['test','-race','-count=20','-p','1','-timeout','10m','-run','^TestLoginsKeptWhileAnotherMagpieWrites$','-v','./internal/provider'];
     const child=spawnSync('go',args,{cwd:product,env,encoding:'utf8',windowsHide:true,maxBuffer:32*1024*1024});
     const log=(child.stdout||'')+(child.stderr||''); fs.writeFileSync(path.join(output,'account-read.log'),log);process.stdout.write(log);report.code=child.status;
@@ -44,6 +57,7 @@ withHeavyLock(async()=>{
   }finally{
     fs.writeFileSync(source,original); report.trackedDirty=!!git(['status','--porcelain','--untracked-files=no']);
     fs.writeFileSync(memoSource,memoOriginal); report.trackedDirty=!!git(['status','--porcelain','--untracked-files=no']);
+    fs.writeFileSync(nativeSource,nativeOriginal);
     fs.writeFileSync(path.join(output,'account-report.json'),JSON.stringify(report,null,2));
     if(path.dirname(temporary)!==path.resolve(os.tmpdir())||!path.basename(temporary).startsWith('wefto-account-diag-'))throw new Error('Unexpected temporary path');
     fs.rmSync(temporary,{recursive:true,force:true});
