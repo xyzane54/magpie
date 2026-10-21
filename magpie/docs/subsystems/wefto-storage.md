@@ -24,6 +24,8 @@ Provider records contain credential references and previews; API keys remain in 
 
 [`steady.Rename` and `WriteFileContext`](../../internal/steady/steady.go) publish staged state files beside their destination. On Windows these sibling replacements use [`os.Root.Rename`](../../internal/steady/rename_windows.go), which requests handle-based POSIX replacement and owns the filesystem fallback. On supporting filesystems such as NTFS, a reader that permits deletion can finish reading the previous generation while new readers open the complete replacement. A reader that denies replacement is still waited out by the existing bounded retry. Moves between different directory paths retain `os.Rename` behavior; the staged file is flushed before publication and a failed write removes its staging file.
 
+[`ReadFile` / `ReadThere`](../../internal/steady/read_windows.go) open Windows files with read, write and delete sharing, so reads of the previous generation cooperate with that replacement. Each read owns and closes one handle; ordinary Win32 resolution still follows links outside the parent, and long absolute and relative paths retain extended-path support. Sharing flags do not grant read access: a handle that denies readers still produces a read-sharing error after the bounded retry.
+
 [`filememo.Read`](../../internal/filememo/filememo.go) continues to report genuine deletion as `fs.ErrNotExist` and other read failures as errors. The replacement fix does not return a cached account list on failure or parse a missing file as empty. The existing bounded read retries remain for replacement by older or external writers.
 
 ## Service and host recovery

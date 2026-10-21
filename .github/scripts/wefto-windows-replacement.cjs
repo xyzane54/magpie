@@ -42,8 +42,10 @@ withHeavyLock(async () => {
       report.phases['old-concurrent-read'].reproducedMissing = stress.code === 1;
     } finally { fs.writeFileSync(source,fixed); }
     git(['diff','--exit-code']);
-    const result = run('fixed-concurrent-read',20,'^(TestReadWhileReplaced|TestReplaceWhileReadingPreviousGeneration|TestLoginsKeptWhileAnotherMagpieWrites)$',['./internal/steady','./internal/filememo','./internal/provider']);
+    const result = run('fixed-concurrent-read',20,'^(TestReadWhileReplaced|TestReplaceWhileReadingPreviousGeneration|TestLoginsKeptWhileAnotherMagpieWrites|TestSaveKeepsReadBlockedSettings)$',['./internal/steady','./internal/filememo','./internal/provider','./internal/settings']);
     if (result.code !== 0) throw new Error('Fixed native Windows race comparison failed');
+    const boundaries = run('fixed-reader-boundaries',1,'^TestSharedRead',['./internal/steady']);
+    if (boundaries.code !== 0) throw new Error('Fixed Windows reader boundary checks failed');
     report.trackedDirty = !!git(['status','--porcelain','--untracked-files=no']);
     if (report.trackedDirty) throw new Error('The fixed source changed during validation');
     report.status = 'passed';

@@ -6,7 +6,6 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"syscall"
 	"testing"
 )
 
@@ -21,17 +20,10 @@ func TestReplaceWhileReadingPreviousGeneration(t *testing.T) {
 			if err := os.WriteFile(path, []byte("old accounts"), 0o600); err != nil {
 				t.Fatal(err)
 			}
-			name, err := syscall.UTF16PtrFromString(path)
+			reader, err := openReadFile(path)
 			if err != nil {
 				t.Fatal(err)
 			}
-			handle, err := syscall.CreateFile(name, syscall.GENERIC_READ,
-				syscall.FILE_SHARE_READ|syscall.FILE_SHARE_WRITE|syscall.FILE_SHARE_DELETE,
-				nil, syscall.OPEN_EXISTING, 0, 0)
-			if err != nil {
-				t.Fatal(err)
-			}
-			reader := os.NewFile(uintptr(handle), path)
 			defer reader.Close()
 			if operation == "Rename" {
 				staged := filepath.Join(dir, "logins.json.tmp")

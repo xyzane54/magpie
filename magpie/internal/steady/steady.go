@@ -37,10 +37,10 @@ const (
 // windows is whether files behave as Windows' do; a test sets it.
 var windows = runtime.GOOS == "windows"
 
-// stat and readFile are os.Stat and os.ReadFile; a test stands in for them.
+// stat and readFile perform one stat or shared read; tests stand in for them.
 var (
 	stat     = os.Stat
-	readFile = os.ReadFile
+	readFile = readOnce
 )
 
 func retry(f func() error) error {

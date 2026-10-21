@@ -4,14 +4,14 @@ import (
 	"errors"
 	"io/fs"
 	"os"
-	"runtime"
 	"testing"
 )
 
 // as Windows has it: a file being renamed over is, for a moment, not there
 func TestStatWaitsOutAReplace(t *testing.T) {
+	oldWindows, oldStat, oldRead := windows, stat, readFile
 	windows = true
-	defer func() { windows, stat, readFile = runtime.GOOS == "windows", os.Stat, os.ReadFile }()
+	defer func() { windows, stat, readFile = oldWindows, oldStat, oldRead }()
 	missing := 3
 	stat = func(p string) (fs.FileInfo, error) {
 		if missing > 0 {
