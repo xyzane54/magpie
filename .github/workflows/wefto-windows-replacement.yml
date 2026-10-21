@@ -42,8 +42,8 @@ jobs:
           Add-Content -LiteralPath $env:GITHUB_ENV -Value 'CC=gcc'
           go mod download
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Compare old and fixed publication with native race tests
-        run: node ../.github/scripts/wefto-windows-replacement.cjs
+      - name: Diagnose the remaining account read failure
+        run: node ../.github/scripts/wefto-account-diagnostic.cjs
       - name: Preserve source identity and comparison logs
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
