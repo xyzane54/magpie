@@ -10,6 +10,8 @@
 
 Executable comparisons resolve both existing absolute paths before comparing them. This recognizes Windows 8.3 aliases and macOS symlinked temporary roots returned by OS process queries. A missing or unreadable path does not establish identity; a distinct hard-link path remains another installation. PID creation stamps and authenticated instance checks still apply.
 
+Native Windows supports external process identity and per-user autostart. Linux provides external PID identity for regression runners. Other platforms currently identify only the current foreground process: an external process remains unknown, and its lock must not be archived or its process controlled. The cleanup regression exercises that refusal on those platforms rather than spawning a child that cannot be identified.
+
 The ordinary Windows development entry is [`scripts/start-project.ps1`](../../../scripts/start-project.ps1), also called by `start.cmd`. It uses `magpie/dist/wefto.exe` and ordinary Windows roots, and reports the actual management URL. `-CheckOnly -NoBrowser` is read-only. Its check accepts a whole fresh or legacy layout, never a mixture. Upgrades stop the original executable before switching builds; see the [upgrade guide](../wefto-upgrade.md).
 
 ## Management and model requests

@@ -1,16 +1,47 @@
 package routercontrol
 
 import (
+	"bytes"
 	"encoding/json"
 	"github.com/yetone/magpie/internal/dirs"
 	"github.com/yetone/magpie/internal/proc"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 	"time"
 )
 
 func TestStartupFailureCleanupOwnsExactChild(t *testing.T) {
+	if runtime.GOOS != "windows" && runtime.GOOS != "linux" {
+		t.Run("unsupported-process-identity-retains-unknown-lock", func(t *testing.T) {
+			stamp, executable, err := processIdentity(os.Getppid())
+			if err == nil || stamp != "" || executable != "" {
+				t.Fatal("unsupported external process identity did not remain unknown", err)
+			}
+			layout := startupRecordFixture(t, true)
+			record, err := ReadRecord(layout)
+			if err != nil {
+				t.Fatal(err)
+			}
+			record.PID = os.Getppid()
+			before, err := json.Marshal(record)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(RecordFile(layout), before, 0o600); err != nil {
+				t.Fatal(err)
+			}
+			if err := archiveExitedLock(layout); err == nil {
+				t.Fatal("unsupported external process control archived an unknown lock")
+			}
+			after, err := os.ReadFile(RecordFile(layout))
+			if err != nil || !bytes.Equal(before, after) {
+				t.Fatal("unknown process record was changed", err)
+			}
+		})
+		return
+	}
 	if os.Args[len(os.Args)-1] == "router-control-cleanup-child" {
 		for {
 			time.Sleep(time.Minute)
