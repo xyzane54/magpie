@@ -7,6 +7,11 @@ import (
 )
 
 func statOnce(path string) (os.FileInfo, error) {
+	unlock, err := lockPath(path)
+	if err != nil {
+		return nil, err
+	}
+	defer unlock()
 	// Query an opened generation instead of Win32's path-attribute lookup,
 	// which can report a replaced name absent. Metadata needs no read-data
 	// access and must not deny another publisher's delete access.

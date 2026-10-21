@@ -6,6 +6,15 @@ import (
 )
 
 func rename(oldpath, newpath string) error {
+	unlock, err := lockPath(newpath)
+	if err != nil {
+		return &os.LinkError{Op: "rename", Old: oldpath, New: newpath, Err: err}
+	}
+	defer unlock()
+	return renameUnlocked(oldpath, newpath)
+}
+
+func renameUnlocked(oldpath, newpath string) error {
 	if oldpath == "" || newpath == "" || os.IsPathSeparator(oldpath[len(oldpath)-1]) || os.IsPathSeparator(newpath[len(newpath)-1]) {
 		return os.Rename(oldpath, newpath)
 	}

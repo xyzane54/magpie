@@ -51,6 +51,11 @@ func openSharedFile(path string, access uint32) (*os.File, error) {
 }
 
 func readOnce(path string) ([]byte, error) {
+	unlock, err := lockPath(path)
+	if err != nil {
+		return nil, err
+	}
+	defer unlock()
 	f, err := openReadFile(path)
 	if err != nil {
 		return nil, err
