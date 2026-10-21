@@ -1,4 +1,4 @@
-name: Wefto macOS diagnostic
+name: Wefto macOS tutorial diagnostic
 on:
   push:
     branches: [codex/wefto-macos-diagnostic]
@@ -16,6 +16,7 @@ jobs:
       GOENV: 'off'
       GOTOOLCHAIN: local
       GOWORK: 'off'
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/magpie/dist/cache/playwright
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -24,24 +25,38 @@ jobs:
         with:
           go-version-file: magpie/go.mod
           cache: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: magpie/.node-version
+          package-manager-cache: false
       - name: Resolve the macOS temporary directory
         run: |
           canonical_temp="$(cd "${TMPDIR:-/tmp}" && pwd -P)"
           printf 'TMPDIR=%s\nTMP=%s\nTEMP=%s\n' "$canonical_temp" "$canonical_temp" "$canonical_temp" >> "$GITHUB_ENV"
-      - name: Prepare Go modules
-        run: go mod download
-      - name: Diagnose native service ownership and lifecycle tests
+      - name: Prepare pinned tools and browsers
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund --cache ./dist/cache/npm --userconfig ./dist/npm-user.npmrc --globalconfig ./dist/npm-global.npmrc
+          go mod download
+          npm run browsers:install
+          git diff --exit-code
+      - name: Build the native diagnostic candidate
         env:
           GOPROXY: 'off'
           GOSUMDB: 'off'
-          CGO_ENABLED: '1'
+          CGO_ENABLED: '0'
           GOFLAGS: '-mod=readonly -buildvcs=false'
         run: |
           mkdir -p dist/macos-diagnostic
-          go test -race -count=1 -p 1 -timeout 3m -v ./internal/routercontrol ./internal/routerservice 2>&1 | tee dist/macos-diagnostic/go.log
+          git rev-parse HEAD HEAD:magpie
+          go build -trimpath -ldflags='-s -w -X main.version=0.1.0-dev+regression' -o dist/macos-diagnostic/wefto ./cmd/wefto
+      - name: Verify the tutorial in both native browser engines
+        run: |
+          for engine in chromium webkit; do
+            BROWSER="$engine" WEFTO_BINARY="$PWD/dist/macos-diagnostic/wefto" ARTIFACT_DIR="$PWD/dist/macos-diagnostic/$engine" node --test --test-reporter=tap internal/routerservice/tests/tutorial.test.cjs 2>&1 | tee "dist/macos-diagnostic/$engine.log"
+          done
       - name: Preserve diagnostic output
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: wefto-macos-diagnostic
+          name: wefto-macos-tutorial-diagnostic
           path: magpie/dist/macos-diagnostic/

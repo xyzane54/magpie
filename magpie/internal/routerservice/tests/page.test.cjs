@@ -277,7 +277,16 @@ for (const engine of (process.env.BROWSER ? [process.env.BROWSER] : ['chromium',
     for (const route of ['/api/plugins', '/boot.js', '/kernel.js', '/plugins/usage/page.js']) {
       assert.equal((await page.request.get(`http://${address}${route}`)).status(), 404);
     }
-    service.kill('SIGTERM');
+    if (process.platform === 'win32') {
+      // Node forcibly terminates Windows children for SIGTERM. Use the
+      // authenticated graceful-stop operation to exercise token cleanup.
+      const stopped = await page.request.post(`http://${address}/api/service/stop`, {
+        headers: { Authorization: `Bearer ${token}`, Origin: `http://${address}` }
+      });
+      assert.equal(stopped.status(), 202);
+    } else {
+      service.kill('SIGTERM');
+    }
     await exited;
     await page.locator('#sync').click();
     await page.waitForFunction(() => document.querySelector('#status').textContent !== '');

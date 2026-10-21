@@ -28,4 +28,8 @@ Principal management routes are `/api/service`, `/api/service/{stop,restart,auto
 
 UI preferences and tutorial state use `wefto.ui` and `wefto.tutorial.v1`. If the new key is absent at the same origin, the page reads its `api-router` predecessor; subsequent saves use the new key. Explicit new state wins. Another browser origin cannot read old localStorage; server credentials and models are unaffected.
 
+Manual tutorial entry records the actual clicked entry button as its focus-return target, including on browsers that do not focus buttons on mouse clicks. Closing or dismissing the guide restores that visible entry after removing modal isolation. Programmatic and first-run entry retain the previously focused element or the ordinary guide entry fallback.
+
+While the guide is open, Tab and Shift+Tab explicitly cycle its visible controls in both directions. This keeps focus in the dialog even when native browser keyboard preferences skip buttons. Keyboard focus may scroll the reading pane normally; entry and exit preserve the page scroll position.
+
 Verification includes management-origin/authentication tests, legacy-header tests, service/control tests, native Windows lifecycle checks and the complete Chromium/WebKit gate in [product regression](../product-regression.md).

@@ -319,9 +319,11 @@
     }
     isolated = [];
   }
-  function open() {
+  function open(event) {
     if (opened) return;
-    returnFocus = document.activeElement;
+    // WebKit does not always focus a button when it is clicked. Remember
+    // the actual entry button so closing the guide restores keyboard focus.
+    returnFocus = event?.currentTarget instanceof HTMLElement ? event.currentTarget : document.activeElement;
     opened = true;
     // Remember the first display immediately so a refresh never forces it open again.
     state.dismissed = true;
@@ -367,12 +369,15 @@
     if (event.key !== 'Tab') return;
     const targets = [...dialog.querySelectorAll('button:not(:disabled), a[href], input:not(:disabled), textarea:not(:disabled), summary, [tabindex]:not([tabindex="-1"])')]
       .filter((node) => !node.closest('[hidden], [inert]') && node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden');
-    const first = targets[0], last = targets.at(-1);
-    if (!first) { event.preventDefault(); focus(dialog); return; }
-    if (!dialog.contains(document.activeElement) || event.shiftKey && document.activeElement === first || !event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      focus(event.shiftKey ? last : first);
-    }
+    if (!targets.length) { event.preventDefault(); focus(dialog); return; }
+    // Safari's keyboard settings can skip buttons in its default Tab order.
+    // Choose every modal target explicitly; keyboard focus may scroll the
+    // reading pane normally, while entry and exit keep preventScroll.
+    const current = targets.indexOf(document.activeElement);
+    const next = current < 0 ? (event.shiftKey ? targets.length - 1 : 0)
+      : (current + (event.shiftKey ? -1 : 1) + targets.length) % targets.length;
+    event.preventDefault();
+    targets[next].focus();
   }, true);
   window.routerTutorialOpen = open;
   window.routerTutorialRender = render;
