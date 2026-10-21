@@ -40,6 +40,9 @@ withHeavyLock(async () => {
       fs.writeFileSync(source, old);
       const control = run('old-held-reader',1,'^TestReplaceWhileReadingPreviousGeneration$',['./internal/steady']);
       if (control.code !== 1 || !control.log.includes('publishing while an old reader permits replacement') || !control.log.includes('--- FAIL: TestReplaceWhileReadingPreviousGeneration/Rename') || !control.log.includes('--- FAIL: TestReplaceWhileReadingPreviousGeneration/WriteFile')) throw new Error('The old publication did not fail the behavior control as expected');
+      const uncoordinated = run('old-cross-process',1,'^TestReplacementGuardAcrossProcesses$',['./internal/steady']);
+      if (uncoordinated.code !== 1 || !uncoordinated.log.includes('crossed another process')) throw new Error('The old I/O did not fail the cross-process behavior control');
+      for (const operation of ['read','stat','rename','write']) if (!uncoordinated.log.includes('--- FAIL: TestReplacementGuardAcrossProcesses/'+operation)) throw new Error('Missing old cross-process failure: '+operation);
       const stress = run('old-concurrent-read',20,'^TestReadWhileReplaced$',['./internal/filememo']);
       if (stress.code !== 0 && !(stress.code === 1 && stress.log.includes('the file read as not there'))) throw new Error('Unexpected baseline stress failure');
       report.phases['old-concurrent-read'].reproducedMissing = stress.code === 1;
@@ -47,7 +50,7 @@ withHeavyLock(async () => {
     git(['diff','--exit-code']);
     const result = run('fixed-concurrent-read',20,'^(TestReadWhileReplaced|TestReplaceWhileReadingPreviousGeneration|TestLoginsKeptWhileAnotherMagpieWrites|TestSaveKeepsReadBlockedSettings)$',['./internal/steady','./internal/filememo','./internal/provider','./internal/settings']);
     if (result.code !== 0) throw new Error('Fixed native Windows race comparison failed');
-    const boundaries = run('fixed-reader-boundaries',1,'^TestSharedRead',['./internal/steady']);
+    const boundaries = run('fixed-reader-boundaries',1,'^(TestSharedRead|TestReplacementGuard)',['./internal/steady']);
     if (boundaries.code !== 0) throw new Error('Fixed Windows reader boundary checks failed');
     report.trackedDirty = !!git(['status','--porcelain','--untracked-files=no']);
     if (report.trackedDirty) throw new Error('The fixed source changed during validation');
