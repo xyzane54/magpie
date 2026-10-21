@@ -280,4 +280,9 @@ $('#sync').onclick = refresh; $('#usageReload').onclick = refresh;
 sideQuery.addEventListener('change', layoutNavigation); phoneQuery.addEventListener('change', layoutNavigation);
 window.addEventListener('resize', layoutNavigation);
 renderPreferences(); renderAgents(); layoutNavigation(); renderService();
-refresh();
+// View scripts register their connection hooks after this script loads.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', refresh, { once: true });
+} else {
+  refresh();
+}

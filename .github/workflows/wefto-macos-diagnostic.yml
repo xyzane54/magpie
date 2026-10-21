@@ -1,4 +1,4 @@
-name: Wefto macOS tutorial diagnostic
+name: Wefto macOS page diagnostic
 on:
   push:
     branches: [codex/wefto-macos-diagnostic]
@@ -49,10 +49,10 @@ jobs:
           mkdir -p dist/macos-diagnostic
           git rev-parse HEAD HEAD:magpie
           go build -trimpath -ldflags='-s -w -X main.version=0.1.0-dev+regression' -o dist/macos-diagnostic/wefto ./cmd/wefto
-      - name: Verify the tutorial in both native browser engines
+      - name: Verify startup and tutorial in both native browser engines
         run: |
           for engine in chromium webkit; do
-            BROWSER="$engine" WEFTO_BINARY="$PWD/dist/macos-diagnostic/wefto" ARTIFACT_DIR="$PWD/dist/macos-diagnostic/$engine" node --test --test-reporter=tap internal/routerservice/tests/tutorial.test.cjs 2>&1 | tee "dist/macos-diagnostic/$engine.log"
+            BROWSER="$engine" WEFTO_BINARY="$PWD/dist/macos-diagnostic/wefto" ARTIFACT_DIR="$PWD/dist/macos-diagnostic/$engine" node --test --test-concurrency=1 --test-reporter=tap internal/routerservice/tests/local-model.test.cjs internal/routerservice/tests/tutorial.test.cjs 2>&1 | tee "dist/macos-diagnostic/$engine.log"
           done
       - name: Preserve diagnostic output
         if: always()

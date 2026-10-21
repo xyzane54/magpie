@@ -26,6 +26,8 @@ Principal management routes are `/api/service`, `/api/service/{stop,restart,auto
 
 [`assets/index.html`](../../internal/routerservice/assets/index.html) and product scripts expose application, provider, routing, local-model and usage pages. Titles and header show Wefto / Wefto 织流 with a W favicon. Copy and tutorial translations cover Simplified/Traditional Chinese, English, Japanese and German. Retained Magpie assets provide shared styles/icons without starting its lifecycle.
 
+The initial authenticated refresh waits for `DOMContentLoaded`, after the static view scripts register their connection hooks. A fast local service must still populate the selected page when a view script loads slowly; no second navigation or manual refresh is required. Later refreshes use the same registered hooks.
+
 UI preferences and tutorial state use `wefto.ui` and `wefto.tutorial.v1`. If the new key is absent at the same origin, the page reads its `api-router` predecessor; subsequent saves use the new key. Explicit new state wins. Another browser origin cannot read old localStorage; server credentials and models are unaffected.
 
 Manual tutorial entry records the actual clicked entry button as its focus-return target, including on browsers that do not focus buttons on mouse clicks. Closing or dismissing the guide restores that visible entry after removing modal isolation. Programmatic and first-run entry retain the previously focused element or the ordinary guide entry fallback.
